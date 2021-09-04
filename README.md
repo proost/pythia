@@ -1,4 +1,4 @@
-# JOA-interpreter
+# Pythia-interpreter
 
-# Interpreter for JOA language
+# Interpreter for Pythia language
 
