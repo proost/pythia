@@ -3,10 +3,10 @@ package lexer
 import "pythia/token"
 
 type Lexer struct {
-	input string
-	position int // 현재 문자의 위치
-	readPosition int // 현재 문자의 다음
-	ch byte // 현재 읽고 있는 문자
+	input        string
+	position     int  // 현재 문자의 위치
+	readPosition int  // 현재 문자의 다음
+	ch           byte // 현재 읽고 있는 문자
 }
 
 func New(input string) *Lexer {
