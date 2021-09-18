@@ -12,3 +12,4 @@
    > ++, -- 가 반드시 필요할까?
 8. ! operation의 문제: !5는 false인데, 과연 이런 것이 필요한가?
 9. Block Statement는 별도의 Environment를 갖지 않는다.
+10. Array access시에 size를 넘어가는 값에 Null을 리턴한다.
