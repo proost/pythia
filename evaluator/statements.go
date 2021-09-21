@@ -1,6 +1,7 @@
 package evaluator
 
 import (
+	"os"
 	"pythia/ast"
 	"pythia/object"
 )
@@ -38,3 +39,11 @@ func evalBlockStatement(block *ast.BlockStatement, env *object.Environment) obje
 	return result
 }
 
+func evalInstructionStatement(instruction *ast.InstructionStatement) object.Object {
+	switch instruction.Instruction {
+	case "exit":
+		os.Exit(0)
+	}
+
+	return newError("unknown instruction: %s", instruction.Instruction)
+}

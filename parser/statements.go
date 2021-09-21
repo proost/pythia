@@ -11,6 +11,8 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseLetStatement()
 	case token.RETURN:
 		return p.parseReturnStatement()
+	case token.DOT:
+		return p.parseInstructionStatement()
 	default:
 		return p.parseExpressionStatement()
 	}
@@ -52,6 +54,10 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 	}
 
 	return stmt
+}
+
+func (p *Parser) parseInstructionStatement() *ast.InstructionStatement {
+	return &ast.InstructionStatement{Token: p.curToken, Instruction: p.curToken.Literal }
 }
 
 func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {

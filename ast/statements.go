@@ -94,3 +94,11 @@ func (bs *BlockStatement) String() string {
 	return out.String()
 }
 
+type InstructionStatement struct {
+	Token token.Token
+	Instruction string
+}
+
+func (is *InstructionStatement) statementNode() {}
+func (is *InstructionStatement) TokenLiteral() string { return is.Token.Literal }
+func (is *InstructionStatement) String() string { return is.Instruction }

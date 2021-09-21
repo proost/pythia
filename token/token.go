@@ -21,6 +21,7 @@ const (
 	EQ     = "=="
 	NOT_EQ = "!="
 
+	DOT = "."
 	COMMA     = ","
 	SEMICOLON = ";"
 	COLON     = ":"

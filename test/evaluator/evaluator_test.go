@@ -204,6 +204,10 @@ func TestErrorHandling(t *testing.T) {
 			`{"name": "Monkey"}[fn(x) { x }];`,
 			"unusable as hash key: FUNCTION",
 		},
+		{
+			".name",
+			"unknown instruction: name",
+		},
 	}
 
 	for _, tt := range tests {

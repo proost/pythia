@@ -19,8 +19,6 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return evalProgram(node, env)
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression, env)
-	case *ast.IfExpression:
-		return evalIfExpression(node, env)
 	case *ast.BlockStatement:
 		return evalBlockStatement(node, env)
 	case *ast.ReturnStatement:
@@ -29,12 +27,16 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 			return val
 		}
 		return &object.ReturnValue{Value: val}
+	case *ast.InstructionStatement:
+		return evalInstructionStatement(node)
 	case *ast.LetStatement:
 		val := Eval(node.Value, env)
 		if isError(val) {
 			return val
 		}
 		env.Set(node.Name.Value, val)
+	case *ast.IfExpression:
+		return evalIfExpression(node, env)
 	case *ast.CallExpression:
 		function := Eval(node.Function, env)
 		if isError(function) {
