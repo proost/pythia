@@ -35,27 +35,13 @@ func (l *Lexer) NextToken() token.Token {
 
 	switch l.ch {
 	case '=':
-		if l.peekChar() == '=' {
-			ch := l.ch
-			l.readChar()
-			literal := string(ch) + string(l.ch)
-			tok = token.Token{Type: token.EQ, Literal: literal}
-		} else {
-			tok = newToken(token.ASSIGN, l.ch)
-		}
+		tok = l.makeTwoCharToken(l.ch)
 	case '+':
 		tok = newToken(token.PLUS, l.ch)
 	case '-':
 		tok = newToken(token.MINUS, l.ch)
 	case '!':
-		if l.peekChar() == '=' {
-			ch := l.ch
-			l.readChar()
-			literal := string(ch) + string(l.ch)
-			tok = token.Token{Type: token.NOT_EQ, Literal: literal}
-		} else {
-			tok = newToken(token.BANG, l.ch)
-		}
+		tok = l.makeTwoCharToken(l.ch)
 	case '*':
 		tok = newToken(token.ASTERISK, l.ch)
 	case '/':
@@ -63,9 +49,13 @@ func (l *Lexer) NextToken() token.Token {
 	case '%':
 		tok = newToken(token.PERCENT, l.ch)
 	case '<':
-		tok = newToken(token.LT, l.ch)
+		tok = l.makeTwoCharToken(l.ch)
 	case '>':
-		tok = newToken(token.GT, l.ch)
+		tok = l.makeTwoCharToken(l.ch)
+	case '&':
+		tok = l.makeTwoCharToken(l.ch)
+	case '|':
+		tok = l.makeTwoCharToken(l.ch)
 	case ',':
 		tok = newToken(token.COMMA, l.ch)
 	case ';':
@@ -189,4 +179,61 @@ func (l *Lexer) readInstruction() string {
 	}
 
 	return l.input[position:l.position]
+}
+
+func (l *Lexer) makeTwoCharToken(currChar byte) token.Token {
+	var tok token.Token
+
+	switch currChar {
+	case '=':
+		if l.peekChar() == '=' {
+			l.readChar()
+			literal := string(currChar) + string(l.ch)
+			tok = token.Token{Type: token.EQ, Literal: literal}
+		} else {
+			tok = newToken(token.ASSIGN, currChar)
+		}
+	case '!':
+		if l.peekChar() == '=' {
+			l.readChar()
+			literal := string(currChar) + string(l.ch)
+			tok = token.Token{Type: token.NOT_EQ, Literal: literal}
+		} else {
+			tok = newToken(token.BANG, currChar)
+		}
+	case '<':
+		if l.peekChar() == '=' {
+			l.readChar()
+			literal := string(currChar) + string(l.ch)
+			tok = token.Token{Type: token.LT_OR_EQ, Literal: literal}
+		} else {
+			tok = newToken(token.LT, currChar)
+		}
+	case '>':
+		if l.peekChar() == '=' {
+			l.readChar()
+			literal := string(currChar) + string(l.ch)
+			tok = token.Token{Type: token.GT_OR_EQ, Literal: literal}
+		} else {
+			tok = newToken(token.GT, currChar)
+		}
+	case '&':
+		if l.peekChar() == '&' {
+			l.readChar()
+			literal := string(currChar) + string(l.ch)
+			tok = token.Token{Type: token.AND, Literal: literal}
+		} else {
+			tok = newToken(token.ILLEGAL, currChar)
+		}
+	case '|':
+		if l.peekChar() == '|' {
+			l.readChar()
+			literal := string(currChar) + string(l.ch)
+			tok = token.Token{Type: token.OR, Literal: literal}
+		} else {
+			tok = newToken(token.ILLEGAL, currChar)
+		}
+	}
+
+	return tok
 }

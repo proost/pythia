@@ -91,16 +91,7 @@ func evalPrefixExpression(operator string, right object.Object) object.Object {
 }
 
 func evalBangOperatorExpression(right object.Object) object.Object {
-	switch right {
-	case TRUE:
-		return FALSE
-	case FALSE:
-		return TRUE
-	case NULL:
-		return TRUE
-	default:
-		return FALSE
-	}
+	return nativeBoolToBooleanObject(!isTruthy(right))
 }
 
 func evalMinusPrefixOperatorExpression(right object.Object) object.Object {
@@ -123,6 +114,10 @@ func evalInfixExpression(operator string, left, right object.Object) object.Obje
 		return evalIntegerInfixExpression(operator, left, right)
 	case areBothRealNumber(left, right):
 		return evalRealNumberInfixExpression(operator, left, right)
+	case operator == "&&":
+		return evalLogicalAndExpression(left, right)
+	case operator == "||":
+		return evalLogicalOrExpression(left, right)
 	case left.Type() == object.STRING_OBJ && right.Type() == object.STRING_OBJ:
 		return evalStringInfixExpression(operator, left, right)
 	case operator == "==":
@@ -154,6 +149,10 @@ func evalIntegerInfixExpression(operator string, left, right object.Object) obje
 		return nativeBoolToBooleanObject(leftVal < rightVal)
 	case ">":
 		return nativeBoolToBooleanObject(leftVal > rightVal)
+	case "<=":
+		return nativeBoolToBooleanObject(leftVal <= rightVal)
+	case ">=":
+		return nativeBoolToBooleanObject(leftVal >= rightVal)
 	case "==":
 		return nativeBoolToBooleanObject(leftVal == rightVal)
 	case "!=":
@@ -194,6 +193,10 @@ func evalRealNumberInfixExpression(operator string, left, right object.Object) o
 		return nativeBoolToBooleanObject(leftVal < rightVal)
 	case ">":
 		return nativeBoolToBooleanObject(leftVal > rightVal)
+	case "<=":
+		return nativeBoolToBooleanObject(leftVal <= rightVal)
+	case ">=":
+		return nativeBoolToBooleanObject(leftVal >= rightVal)
 	case "==":
 		return nativeBoolToBooleanObject(leftVal == rightVal)
 	case "!=":
@@ -248,4 +251,28 @@ func evalHashIndexExpression(hash, index object.Object) object.Object {
 	}
 
 	return pair.Value
+}
+
+func evalLogicalAndExpression(left, right object.Object) object.Object {
+	leftVal := isTruthy(left)
+
+	if !leftVal {
+		return nativeBoolToBooleanObject(false)
+	}
+
+	rightVal := isTruthy(right)
+
+	return nativeBoolToBooleanObject(leftVal && rightVal)
+}
+
+func evalLogicalOrExpression(left, right object.Object) object.Object {
+	leftVal := isTruthy(left)
+
+	if leftVal {
+		return nativeBoolToBooleanObject(true)
+	}
+
+	rightVal := isTruthy(right)
+
+	return nativeBoolToBooleanObject(leftVal || rightVal)
 }

@@ -57,7 +57,7 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 }
 
 func (p *Parser) parseInstructionStatement() *ast.InstructionStatement {
-	return &ast.InstructionStatement{Token: p.curToken, Instruction: p.curToken.Literal }
+	return &ast.InstructionStatement{Token: p.curToken, Instruction: p.curToken.Literal}
 }
 
 func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
@@ -87,4 +87,3 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 
 	return block
 }
-

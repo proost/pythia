@@ -6,7 +6,7 @@ const (
 
 	IDENT  = "IDENT"
 	INT    = "INT"
-	FLOAT = "FLOAT"
+	FLOAT  = "FLOAT"
 	STRING = "STRING"
 
 	ASSIGN   = "="
@@ -15,15 +15,20 @@ const (
 	BANG     = "!"
 	ASTERISK = "*"
 	SLASH    = "/"
-	PERCENT = "%"
+	PERCENT  = "%"
 
-	LT = "<"
-	GT = ">"
+	LT       = "<"
+	GT       = ">"
+	GT_OR_EQ = ">="
+	LT_OR_EQ = "<="
 
 	EQ     = "=="
 	NOT_EQ = "!="
 
-	DOT = "."
+	AND = "&&"
+	OR  = "||"
+
+	DOT       = "."
 	COMMA     = ","
 	SEMICOLON = ";"
 	COLON     = ":"

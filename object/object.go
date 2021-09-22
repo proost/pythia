@@ -9,10 +9,10 @@ import (
 type ObjectType string
 
 const (
-	NUMBER_OBJ = "NUMBER"
-	READ_NUMBER_OBJ = "REAL"
+	NUMBER_OBJ       = "NUMBER"
+	READ_NUMBER_OBJ  = "REAL"
 	INTEGER_OBJ      = "INTEGER"
-	FLOAT_OBJ = "FLOAT"
+	FLOAT_OBJ        = "FLOAT"
 	BOOLEAN_OBJ      = "BOOLEAN"
 	NULL_OBJ         = "NULL"
 	RETURN_VALUE_OBJ = "RETURN_VALUE"
@@ -42,18 +42,18 @@ type Integer struct {
 	Value int64
 }
 
-func (i *Integer) Inspect() string  { return fmt.Sprintf("%d", i.Value) }
-func (i *Integer) Type() ObjectType { return INTEGER_OBJ }
-func (i *Integer) Number() {}
+func (i *Integer) Inspect() string    { return fmt.Sprintf("%d", i.Value) }
+func (i *Integer) Type() ObjectType   { return INTEGER_OBJ }
+func (i *Integer) Number()            {}
 func (i *Integer) ToFloat64() float64 { return float64(i.Value) }
 
 type Float struct {
 	Value float64
 }
 
-func (f *Float) Inspect() string { return fmt.Sprintf("%f", f.Value)}
-func (f *Float) Type() ObjectType { return FLOAT_OBJ }
-func (f *Float) Number() {}
+func (f *Float) Inspect() string    { return fmt.Sprintf("%f", f.Value) }
+func (f *Float) Type() ObjectType   { return FLOAT_OBJ }
+func (f *Float) Number()            {}
 func (f *Float) ToFloat64() float64 { return f.Value }
 
 type Boolean struct {

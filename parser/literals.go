@@ -127,4 +127,3 @@ func (p *Parser) parseHashLiteral() ast.Expression {
 
 	return hash
 }
-

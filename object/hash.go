@@ -62,4 +62,3 @@ func (h *Hash) Inspect() string {
 type Hashable interface {
 	HashKey() HashKey
 }
-

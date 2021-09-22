@@ -20,9 +20,9 @@ type FloatLiteral struct {
 	Value float64
 }
 
-func (fl *FloatLiteral) expressionNode() {}
+func (fl *FloatLiteral) expressionNode()      {}
 func (fl *FloatLiteral) TokenLiteral() string { return fl.Token.Literal }
-func (fl *FloatLiteral) String() string { return fl.Token.Literal }
+func (fl *FloatLiteral) String() string       { return fl.Token.Literal }
 
 type Boolean struct {
 	Token token.Token

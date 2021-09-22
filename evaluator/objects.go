@@ -49,4 +49,3 @@ func evalHashLiteral(node *ast.HashLiteral, env *object.Environment) object.Obje
 
 	return &object.Hash{Pairs: pairs}
 }
-

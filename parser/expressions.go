@@ -158,4 +158,3 @@ func (p *Parser) parseIndexExpression(left ast.Expression) ast.Expression {
 
 	return exp
 }
-
