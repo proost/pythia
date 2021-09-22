@@ -1,6 +1,9 @@
 package lexer
 
-import "pythia/token"
+import (
+	"pythia/token"
+	"strings"
+)
 
 type Lexer struct {
 	input        string
@@ -94,9 +97,7 @@ func (l *Lexer) NextToken() token.Token {
 			tok.Type = token.LookupIdent(tok.Literal)
 			return tok
 		} else if isDigit(l.ch) {
-			tok.Type = token.INT
-			tok.Literal = l.readNumber()
-			return tok
+			return l.newNumberToken()
 		} else {
 			tok = newToken(token.ILLEGAL, l.ch)
 		}
@@ -130,16 +131,29 @@ func isLetter(ch byte) bool {
 		ch == '_'
 }
 
+func isDigit(ch byte) bool {
+	return '0' <= ch && ch <= '9'
+}
+
+func (l *Lexer) newNumberToken() token.Token {
+	var tok token.Token
+
+	tok.Literal = l.readNumber()
+	if strings.Contains(tok.Literal, ".") {
+		tok.Type = token.FLOAT
+	} else {
+		tok.Type = token.INT
+	}
+
+	return tok
+}
+
 func (l *Lexer) readNumber() string {
 	position := l.position
-	for isDigit(l.ch) {
+	for isDigit(l.ch) || l.ch == '.' {
 		l.readChar()
 	}
 	return l.input[position:l.position]
-}
-
-func isDigit(ch byte) bool {
-	return '0' <= ch && ch <= '9'
 }
 
 func (l *Lexer) peekChar() byte {
