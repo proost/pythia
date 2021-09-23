@@ -127,3 +127,7 @@ func (p *Parser) parseHashLiteral() ast.Expression {
 
 	return hash
 }
+
+func (p *Parser) parseNullLiteral() ast.Expression {
+	return &ast.NullLiteral{Token: p.curToken, Value: p.curToken.Literal}
+}

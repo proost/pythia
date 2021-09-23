@@ -35,6 +35,7 @@ type Number interface {
 }
 
 type Real interface {
+	Number
 	ToFloat64() float64
 }
 

@@ -99,6 +99,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return &object.Array{Elements: elements}
 	case *ast.HashLiteral:
 		return evalHashLiteral(node, env)
+	case *ast.NullLiteral:
+		return NULL
 	}
 
 	return nil

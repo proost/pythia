@@ -9,7 +9,5 @@
 7. type() built-in 함수를 만들 것
 8. non-null type 추가
 9. multi-line 입력을 지원하지 않는다.
-10. XOR operator의 부재
-11. bit operation이 없다.
-12. ==, != 에서 객체 간의 비교를 어떻게 정의할 것인가?
-13. null을 호출할 수 있게하기
+10. bit operation이 없다.
+11. ==, != 에서 객체 간의 비교를 어떻게 정의할 것인가?

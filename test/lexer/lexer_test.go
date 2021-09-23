@@ -221,6 +221,7 @@ func TestObjectToken(t *testing.T) {
 	"foo bar"
 	[1, 2];
 	{"foo": "bar"}
+	null
 	`
 
 	tests := []struct {
@@ -240,6 +241,7 @@ func TestObjectToken(t *testing.T) {
 		{token.COLON, ":"},
 		{token.STRING, "bar"},
 		{token.RBRACE, "}"},
+		{token.NULL, "null"},
 		{token.EOF, ""},
 	}
 

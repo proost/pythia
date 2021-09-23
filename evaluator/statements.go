@@ -41,7 +41,7 @@ func evalBlockStatement(block *ast.BlockStatement, env *object.Environment) obje
 
 func evalInstructionStatement(instruction *ast.InstructionStatement) object.Object {
 	switch instruction.Instruction {
-	case "exit":
+	case "quit":
 		os.Exit(0)
 	}
 

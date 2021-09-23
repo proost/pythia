@@ -119,3 +119,12 @@ func (hl *HashLiteral) String() string {
 
 	return out.String()
 }
+
+type NullLiteral struct {
+	Token token.Token
+	Value string
+}
+
+func (nl *NullLiteral) expressionNode()      {}
+func (nl *NullLiteral) TokenLiteral() string { return nl.Token.Literal }
+func (nl *NullLiteral) String() string       { return nl.Token.Literal }

@@ -566,6 +566,20 @@ func TestHashIndexExpression(t *testing.T) {
 	}
 }
 
+func TestNullLiteral(t *testing.T) {
+	tests := []struct{
+		input string
+		expected interface{}
+	}{
+		{"null", nil},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		testNullObject(t, evaluated)
+	}
+}
+
 func testEval(input string) object.Object {
 	l := lexer.New(input)
 	p := parser.New(l)
