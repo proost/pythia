@@ -9,8 +9,6 @@ import (
 type ObjectType string
 
 const (
-	NUMBER_OBJ       = "NUMBER"
-	READ_NUMBER_OBJ  = "REAL"
 	INTEGER_OBJ      = "INTEGER"
 	FLOAT_OBJ        = "FLOAT"
 	BOOLEAN_OBJ      = "BOOLEAN"
@@ -22,6 +20,7 @@ const (
 	BUILTIN_OBJ      = "BUILTIN"
 	ARRAY_OBJ        = "ARRAY"
 	HASH_OBJ         = "HASH"
+	TYPE_OBJ         = "TYPE"
 )
 
 type Object interface {
@@ -109,3 +108,10 @@ func (ao *Array) Inspect() string {
 
 	return out.String()
 }
+
+type Type struct {
+	InstanceType ObjectType
+}
+
+func (t *Type) Type() ObjectType { return TYPE_OBJ }
+func (t *Type) Inspect() string  { return "Type: " + string(t.InstanceType) }

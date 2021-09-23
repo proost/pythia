@@ -47,7 +47,7 @@ const (
 	IF       = "IF"
 	ELSE     = "ELSE"
 	RETURN   = "RETURN"
-	NULL = "NULL"
+	NULL     = "NULL"
 )
 
 type TokenType string
@@ -65,7 +65,7 @@ var keywords = map[string]TokenType{
 	"if":     IF,
 	"else":   ELSE,
 	"return": RETURN,
-	"null": NULL,
+	"null":   NULL,
 }
 
 func LookupIdent(ident string) TokenType {

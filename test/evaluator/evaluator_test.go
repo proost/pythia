@@ -246,6 +246,14 @@ func TestErrorHandling(t *testing.T) {
 			".name",
 			"unknown instruction: name",
 		},
+		{
+			"[1, 2, 3][3]",
+			"array index out of bound: 3",
+		},
+		{
+			"[1, 2, 3][-1]",
+			"array index out of bound: -1",
+		},
 	}
 
 	for _, tt := range tests {
@@ -457,14 +465,6 @@ func TestArrayIndexExpressions(t *testing.T) {
 			"let myArray = [1, 2, 3]; let i = myArray[0]; myArray[i]",
 			2,
 		},
-		{
-			"[1, 2, 3][3]",
-			nil,
-		},
-		{
-			"[1, 2, 3][-1]",
-			nil,
-		},
 	}
 
 	for _, tt := range tests {
@@ -567,8 +567,8 @@ func TestHashIndexExpression(t *testing.T) {
 }
 
 func TestNullLiteral(t *testing.T) {
-	tests := []struct{
-		input string
+	tests := []struct {
+		input    string
 		expected interface{}
 	}{
 		{"null", nil},
