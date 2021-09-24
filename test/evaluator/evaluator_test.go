@@ -589,6 +589,10 @@ func TestHashIndexExpression(t *testing.T) {
 			`{false: 5}[false]`,
 			5,
 		},
+		{
+			`{4.999999: 5}[4.999999]`,
+			5,
+		},
 	}
 
 	for _, tt := range tests {

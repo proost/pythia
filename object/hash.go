@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"hash/fnv"
+	"math"
 	"strings"
 )
 
@@ -33,6 +34,10 @@ func (s *String) HashKey() HashKey {
 	h.Write([]byte(s.Value))
 
 	return HashKey{Type: s.Type(), Value: h.Sum64()}
+}
+
+func (f *Float) HashKey() HashKey {
+	return HashKey{Type: f.Type(), Value: math.Float64bits(f.Value)}
 }
 
 type HashPair struct {
