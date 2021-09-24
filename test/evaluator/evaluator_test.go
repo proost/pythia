@@ -166,7 +166,7 @@ func TestReturnStatements(t *testing.T) {
 			10,
 		},
 		{
-			`let f = fn(x) {
+			`let f = func(x) {
 				  	return x;
 				  	x + 10;
 					};
@@ -174,7 +174,7 @@ func TestReturnStatements(t *testing.T) {
 			10,
 		},
 		{
-			` let f = fn(x) {
+			` let f = func(x) {
 					   let result = x + 10;
 					   return result;
 					   return 10;
@@ -239,7 +239,7 @@ func TestErrorHandling(t *testing.T) {
 			"unknown operator: STRING - STRING",
 		},
 		{
-			`{"name": "Monkey"}[fn(x) { x }];`,
+			`{"name": "Monkey"}[func(x) { x }];`,
 			"unusable as hash key: FUNCTION",
 		},
 		{
@@ -289,7 +289,7 @@ func TestLetStatements(t *testing.T) {
 }
 
 func TestFunctionObject(t *testing.T) {
-	input := "fn(x) { x + 2; }"
+	input := "func(x) { x + 2; }"
 
 	evaluated := testEval(input)
 	fn, ok := evaluated.(*object.Function)
@@ -317,12 +317,12 @@ func TestFunctionApplication(t *testing.T) {
 		input    string
 		expected int64
 	}{
-		{"let identity = fn(x) { x; }; identity(5);", 5},
-		{"let identity = fn(x) { return x; }; identity(5);", 5},
-		{"let double = fn(x) { x * 2; } double(5);", 10},
-		{"let add = fn(x, y) { x + y; }; add(5, 5);", 10},
-		{"let add = fn(x, y) { x + y; }; add(5 + 5, add(5, 5));", 20},
-		{"fn(x) { x; }(5)", 5},
+		{"let identity = func(x) { x; }; identity(5);", 5},
+		{"let identity = func(x) { return x; }; identity(5);", 5},
+		{"let double = func(x) { x * 2; } double(5);", 10},
+		{"let add = func(x, y) { x + y; }; add(5, 5);", 10},
+		{"let add = func(x, y) { x + y; }; add(5 + 5, add(5, 5));", 20},
+		{"func(x) { x; }(5)", 5},
 	}
 
 	for _, tt := range tests {
@@ -370,6 +370,19 @@ func TestBuiltinFunctions(t *testing.T) {
 		{`len("one", "two")`, "wrong number of arguments. got=2, want=1"},
 		{`len([1, 2, 3])`, 3},
 		{`len([])`, 0},
+		{"first([1,2,3])", 1},
+		{"first([])", evaluator.NULL},
+		{"first(1)", "argument to first must be ARRAY, got INTEGER"},
+		{"first([1,2],[2,3])", "wrong number of arguments. got=2, want=1"},
+		{"last([1,2,3])", 3},
+		{"last([])", evaluator.NULL},
+		{"last(1)", "argument to last must be ARRAY, got INTEGER"},
+		{"last([1,2],[2,3])", "wrong number of arguments. got=2, want=1"},
+		{"append([], 1)", []int{1}},
+		{"append([1], 2)", []int{1, 2}},
+		{"append([1], 2, 3)", "wrong number of arguments. got=3, want=2"},
+		{"append(1, 2)", "argument to append must be ARRAY, got INTEGER"},
+		{"type(1)", "INTEGER"},
 	}
 
 	for _, tt := range tests {
@@ -382,14 +395,12 @@ func TestBuiltinFunctions(t *testing.T) {
 			errObj, ok := evaluated.(*object.Error)
 			if !ok {
 				t.Errorf("object is not Error. got=%T (%+v)", evaluated, evaluated)
-				if !ok {
-					t.Errorf("object is not Error. got=%T (%+v)", evaluated, evaluated)
-					continue
-				}
 			}
 			if errObj.Message != expected {
 				t.Errorf("wrong error message. expected=%q, got=%q", expected, errObj.Message)
 			}
+		case *object.Null:
+			testNullObject(t, evaluated)
 		case []int:
 			array, ok := evaluated.(*object.Array)
 			if !ok {
@@ -406,6 +417,31 @@ func TestBuiltinFunctions(t *testing.T) {
 			for i, expectedElem := range expected {
 				testIntegerObject(t, array.Elements[i], int64(expectedElem))
 			}
+		}
+	}
+}
+
+func TestBuiltinTypeFunction(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"type(1)", "Type: INTEGER"},
+		{"type(null)", "Type: NULL"},
+		{`type("s")`, "Type: STRING"},
+		{"type(type)", "Type: BUILTIN"},
+		{"type({})", "Type: HASH"},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+
+		typeObj, ok := evaluated.(*object.Type)
+		if !ok {
+			t.Errorf("object is not Type. got=%T (%+v)", evaluated, evaluated)
+		}
+		if typeObj.Inspect() != tt.expected {
+			t.Errorf("wrong type. expected=%s, got=%s", tt.expected, typeObj.Inspect())
 		}
 	}
 }

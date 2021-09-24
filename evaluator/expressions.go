@@ -27,8 +27,10 @@ func evalIfExpression(ie *ast.IfExpression, env *object.Environment) object.Obje
 	}
 
 	if isTruthy(condition) {
+		env := extendIfElseEnv(env)
 		return Eval(ie.Consequence, env)
 	} else if ie.Alternative != nil {
+		env := extendIfElseEnv(env)
 		return Eval(ie.Alternative, env)
 	} else {
 		return NULL
@@ -46,6 +48,10 @@ func isTruthy(obj object.Object) bool {
 	default:
 		return true
 	}
+}
+
+func extendIfElseEnv(env *object.Environment) *object.Environment {
+	return object.NewEnclosedEnvironment(env)
 }
 
 func applyFunction(fn object.Object, args []object.Object) object.Object {
