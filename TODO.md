@@ -6,5 +6,5 @@
 4. non-null type 추가
 5. multi-line 입력을 지원하지 않는다.
 6. bit operation이 없다.
-7. ==, != 에서 객체 간의 비교를 어떻게 정의할 것인가?
-8. 함수 argument에 let 명시하도록 바꾸기
+7. 함수 argument에 let 명시하도록 바꾸기
+8. 재할당 operation이 없다.

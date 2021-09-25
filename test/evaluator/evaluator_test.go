@@ -8,6 +8,39 @@ import (
 	"testing"
 )
 
+func TestEvalEqualExpression(t *testing.T) {
+	tests := []struct {
+		left     string
+		right    string
+		expected bool
+	}{
+		{"1", "1", true},
+		{"1", "2", false},
+		{"1.1", "1.1", true},
+		{"1.5", "2.5", false},
+		{"true", "true", true},
+		{"true", "false", false},
+		{"null", "null", true},
+		{`"abc"`, `"abc"`, true},
+		{`"abc"`, `"bcd"`, false},
+		{"[1,2,3]", "[1,2,3]", true},
+		{"[1]", "[2]", false},
+		{"type(1)", "type(2)", true},
+		{"type(1)", "type(1.0)", false},
+		{"{}", "{}", true},
+		{`{"a": 1, "b": 2}`, `{"b": 2, "a": 1}`, true},
+		{`{"a": 2, "b": 1}`, `{"a": 1, "b": 2}`, false},
+	}
+
+	for _, tt := range tests {
+		leftEvaluated := testEval(tt.left)
+		rightEvaluated := testEval(tt.right)
+		if leftEvaluated.Equals(rightEvaluated) != tt.expected {
+			t.Errorf("expected is wrong. left - (%+v), right - (%+v)", leftEvaluated, rightEvaluated)
+		}
+	}
+}
+
 func TestEvalIntegerExpression(t *testing.T) {
 	tests := []struct {
 		input    string
@@ -370,6 +403,7 @@ func TestBuiltinFunctions(t *testing.T) {
 		{`len("one", "two")`, "wrong number of arguments. got=2, want=1"},
 		{`len([1, 2, 3])`, 3},
 		{`len([])`, 0},
+		{`len({"a": 1})`, 1},
 		{"first([1,2,3])", 1},
 		{"first([])", evaluator.NULL},
 		{"first(1)", "argument to first must be ARRAY, got INTEGER"},
@@ -382,7 +416,6 @@ func TestBuiltinFunctions(t *testing.T) {
 		{"append([1], 2)", []int{1, 2}},
 		{"append([1], 2, 3)", "wrong number of arguments. got=3, want=2"},
 		{"append(1, 2)", "argument to append must be ARRAY, got INTEGER"},
-		{"type(1)", "INTEGER"},
 	}
 
 	for _, tt := range tests {

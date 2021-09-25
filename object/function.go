@@ -30,6 +30,14 @@ func (f *Function) Inspect() string {
 
 	return out.String()
 }
+func (f *Function) Equals(o Object) bool {
+	obj, ok := o.(*Function)
+	if !ok {
+		return false
+	}
+
+	return f == obj
+}
 
 type BuiltinFunction func(args ...Object) Object
 
@@ -39,3 +47,11 @@ type Builtin struct {
 
 func (b *Builtin) Type() ObjectType { return BUILTIN_OBJ }
 func (b *Builtin) Inspect() string  { return "builtin function" }
+func (b *Builtin) Equals(o Object) bool {
+	obj, ok := o.(*Builtin)
+	if !ok {
+		return false
+	}
+
+	return &b.Fn == &obj.Fn
+}

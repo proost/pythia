@@ -63,6 +63,29 @@ func (h *Hash) Inspect() string {
 
 	return out.String()
 }
+func (h *Hash) Equals(o Object) bool {
+	obj, ok := o.(*Hash)
+	if !ok {
+		return false
+	}
+
+	if len(h.Pairs) != len(obj.Pairs) {
+		return false
+	}
+
+	for pairKey, pairValue := range h.Pairs {
+		if !obj.Pairs[pairKey].Value.Equals(pairValue.Value) {
+			return false
+		}
+	}
+	for pairKey, pairValue := range obj.Pairs {
+		if !h.Pairs[pairKey].Value.Equals(pairValue.Value) {
+			return false
+		}
+	}
+
+	return true
+}
 
 type Hashable interface {
 	HashKey() HashKey
