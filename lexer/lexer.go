@@ -1,31 +1,40 @@
 package lexer
 
 import (
+	"fmt"
 	"pythia/token"
 	"strings"
 )
 
 type Lexer struct {
-	input        string
+	input        []rune
 	position     int  // 현재 문자의 위치
 	readPosition int  // 현재 문자의 다음
-	ch           byte // 현재 읽고 있는 문자
+	ch           rune // 현재 읽고 있는 문자
 }
 
 func New(input string) *Lexer {
-	l := &Lexer{input: input}
+	l := &Lexer{input: []rune(input)}
 	l.readChar()
 	return l
 }
 
-func (l *Lexer) readChar() {
-	if l.readPosition >= len(l.input) {
-		l.ch = 0
-	} else {
-		l.ch = l.input[l.readPosition]
+func (l *Lexer) GetErrorInfo() string {
+	row := 0
+	col := 0
+	chars := len(l.input)
+	i := 0
+
+	for i < l.readPosition && i < chars {
+		if l.input[i] == '\n' {
+			row++
+			col = 0
+		}
+
+		i++
+		col++
 	}
-	l.position = l.readPosition
-	l.readPosition += 1
+	return fmt.Sprintf("got %c at line %d, around %d", l.ch, row, col)
 }
 
 func (l *Lexer) NextToken() token.Token {
@@ -80,7 +89,7 @@ func (l *Lexer) NextToken() token.Token {
 	case '.':
 		tok.Type = token.DOT
 		tok.Literal = l.readInstruction()
-	case 0:
+	case rune(0):
 		tok.Literal = ""
 		tok.Type = token.EOF
 	default:
@@ -99,13 +108,23 @@ func (l *Lexer) NextToken() token.Token {
 	return tok
 }
 
+func (l *Lexer) readChar() {
+	if l.readPosition >= len(l.input) {
+		l.ch = rune(0)
+	} else {
+		l.ch = l.input[l.readPosition]
+	}
+	l.position = l.readPosition
+	l.readPosition++
+}
+
 func (l *Lexer) skipWhiteSpace() {
 	for l.ch == ' ' || l.ch == '\t' || l.ch == '\n' || l.ch == '\r' {
 		l.readChar()
 	}
 }
 
-func newToken(tokenType token.TokenType, ch byte) token.Token {
+func newToken(tokenType token.TokenType, ch rune) token.Token {
 	return token.Token{Type: tokenType, Literal: string(ch)}
 }
 
@@ -114,16 +133,16 @@ func (l *Lexer) readIdentifier() string {
 	for isLetter(l.ch) || isDigit(l.ch) {
 		l.readChar()
 	}
-	return l.input[position:l.position]
+	return string(l.input[position:l.position])
 }
 
-func isLetter(ch byte) bool {
-	return 'a' <= ch && ch <= 'z' ||
-		'A' <= ch && ch <= 'Z' ||
+func isLetter(ch rune) bool {
+	return ('a' <= ch && ch <= 'z') ||
+		('A' <= ch && ch <= 'Z') ||
 		ch == '_'
 }
 
-func isDigit(ch byte) bool {
+func isDigit(ch rune) bool {
 	return '0' <= ch && ch <= '9'
 }
 
@@ -145,12 +164,12 @@ func (l *Lexer) readNumber() string {
 	for isDigit(l.ch) || l.ch == '.' {
 		l.readChar()
 	}
-	return l.input[position:l.position]
+	return string(l.input[position:l.position])
 }
 
-func (l *Lexer) peekChar() byte {
+func (l *Lexer) peekChar() rune {
 	if l.readPosition >= len(l.input) {
-		return 0
+		return rune(0)
 	} else {
 		return l.input[l.readPosition]
 	}
@@ -166,7 +185,7 @@ func (l *Lexer) readString() string {
 
 	}
 
-	return l.input[position:l.position]
+	return string(l.input[position:l.position])
 }
 
 func (l *Lexer) readInstruction() string {
@@ -178,10 +197,10 @@ func (l *Lexer) readInstruction() string {
 		}
 	}
 
-	return l.input[position:l.position]
+	return string(l.input[position:l.position])
 }
 
-func (l *Lexer) makeTwoCharToken(currChar byte) token.Token {
+func (l *Lexer) makeTwoCharToken(currChar rune) token.Token {
 	var tok token.Token
 
 	switch currChar {

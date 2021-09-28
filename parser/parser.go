@@ -10,6 +10,7 @@ import (
 const (
 	_ int = iota
 	LOWEST
+	ASSIGN // =
 	LOGICAL_OR  // ||
 	LOGICAL_AND // &&
 	EQUALS      // ==
@@ -22,6 +23,7 @@ const (
 )
 
 var precedences = map[token.TokenType]int{
+	token.ASSIGN:  ASSIGN,
 	token.AND:      LOGICAL_AND,
 	token.OR:       LOGICAL_OR,
 	token.EQ:       EQUALS,
@@ -115,12 +117,12 @@ func (p *Parser) ParseProgram() *ast.Program {
 }
 
 func (p *Parser) peekError(t token.TokenType) {
-	msg := fmt.Sprintf("expected next token to be %s, got %s instead", t, p.peekToken.Type)
+	msg := fmt.Sprintf("expected next token to be %s, got %s instead, %s", t, p.peekToken.Type, p.l.GetErrorInfo())
 	p.errors = append(p.errors, msg)
 }
 
 func (p *Parser) noPrefixParserError(t token.TokenType) {
-	msg := fmt.Sprintf("no prefix parse function for %s found", t)
+	msg := fmt.Sprintf("no prefix parse function for %s found, %s", t, p.l.GetErrorInfo())
 	p.errors = append(p.errors, msg)
 }
 
