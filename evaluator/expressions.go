@@ -20,6 +20,75 @@ func evalExpressions(exps []ast.Expression, env *object.Environment) []object.Ob
 	return result
 }
 
+func evalAssignmentExpression(ae *ast.AssignmentExpression, env *object.Environment) object.Object {
+	evaluated := Eval(ae.Value, env)
+	if isError(evaluated) {
+		return evaluated
+	}
+
+	switch ae.Operator {
+	case "=":
+		_, ok := env.Get(ae.Name.String())
+		if !ok {
+			return newError("%s is not defined identifier", ae.Name.String())
+		}
+
+		env.Set(ae.Name.String(), evaluated)
+	case "+=":
+		curr, ok := env.Get(ae.Name.String())
+		if !ok {
+			return newError("%s is not defined identifier", ae.Name.String())
+		}
+
+		res := evalInfixExpression("+", curr, evaluated)
+		if isError(res) {
+			return newError("+= operation is not supported for %s, %s", curr.Inspect(), evaluated.Inspect())
+		}
+
+		env.Set(ae.Name.String(), res)
+	case "-=":
+		curr, ok := env.Get(ae.Name.String())
+		if !ok {
+			return newError("%s is not defined identifier", ae.Name.String())
+		}
+
+		res := evalInfixExpression("-", curr, evaluated)
+		if isError(res) {
+			return newError("-= operation is not supported for %s, %s", curr.Inspect(), evaluated.Inspect())
+		}
+
+		env.Set(ae.Name.String(), res)
+	case "*=":
+		curr, ok := env.Get(ae.Name.String())
+		if !ok {
+			return newError("%s is not defined identifier", ae.Name.String())
+		}
+
+		res := evalInfixExpression("*", curr, evaluated)
+		if isError(res) {
+			return newError("* operation is not supported for %s, %s", curr.Inspect(), evaluated.Inspect())
+		}
+
+		env.Set(ae.Name.String(), res)
+	case "/=":
+		curr, ok := env.Get(ae.Name.String())
+		if !ok {
+			return newError("%s is not defined identifier", ae.Name.String())
+		}
+
+		res := evalInfixExpression("/", curr, evaluated)
+		if isError(res) {
+			return newError("/ operation is not supported for %s, %s", curr.Inspect(), evaluated.Inspect())
+		}
+
+		env.Set(ae.Name.String(), res)
+	default:
+		return newError("%s is unknown assignment operator", ae.Operator)
+	}
+
+	return nil
+}
+
 func evalIfExpression(ie *ast.IfExpression, env *object.Environment) object.Object {
 	condition := Eval(ie.Condition, env)
 	if isError(condition) {

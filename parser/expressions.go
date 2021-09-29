@@ -158,3 +158,21 @@ func (p *Parser) parseIndexExpression(left ast.Expression) ast.Expression {
 
 	return exp
 }
+
+func (p *Parser) parseAssignmentExpression(left ast.Expression) ast.Expression {
+	exp := &ast.AssignmentExpression{Token: p.curToken}
+
+	name, ok := left.(*ast.Identifier)
+	if !ok {
+		return nil
+	}
+	exp.Name = name
+
+	exp.Operator = p.curToken.Literal
+
+	p.nextToken()
+
+	exp.Value = p.parseExpression(LOWEST)
+
+	return exp
+}

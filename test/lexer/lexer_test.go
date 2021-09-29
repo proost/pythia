@@ -257,3 +257,46 @@ func TestObjectToken(t *testing.T) {
 		}
 	}
 }
+
+func TestAssignToken(t *testing.T) {
+	input := `
+	a = 1
+	a -= 2
+	a += 3
+	a *= 4
+	a /= 5
+	`
+
+	tests := []struct {
+		expectedType    token.TokenType
+		expectedLiteral string
+	}{
+		{token.IDENT, "a"},
+		{token.ASSIGN, "="},
+		{token.INT, "1"},
+		{token.IDENT, "a"},
+		{token.MINUS_ASSIGN, "-="},
+		{token.INT, "2"},
+		{token.IDENT, "a"},
+		{token.PLUS_ASSIGN, "+="},
+		{token.INT, "3"},
+		{token.IDENT, "a"},
+		{token.ASTERISK_ASSIGN, "*="},
+		{token.INT, "4"},
+		{token.IDENT, "a"},
+		{token.SLASH_ASSIGN, "/="},
+		{token.INT, "5"},
+	}
+
+	l := lexer.New(input)
+
+	for i, tt := range tests {
+		tok := l.NextToken()
+		if tok.Type != tt.expectedType {
+			t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q", i, tt.expectedType, tok.Type)
+		}
+		if tok.Literal != tt.expectedLiteral {
+			t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q", i, tt.expectedLiteral, tok.Literal)
+		}
+	}
+}

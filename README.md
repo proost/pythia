@@ -5,6 +5,5 @@
 * python
 * golang
 * java
-* kotlin
+* rust
 * javascript
-

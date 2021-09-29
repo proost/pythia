@@ -46,15 +46,15 @@ func (l *Lexer) NextToken() token.Token {
 	case '=':
 		tok = l.makeTwoCharToken(l.ch)
 	case '+':
-		tok = newToken(token.PLUS, l.ch)
+		tok = l.makeTwoCharToken(l.ch)
 	case '-':
-		tok = newToken(token.MINUS, l.ch)
+		tok = l.makeTwoCharToken(l.ch)
 	case '!':
 		tok = l.makeTwoCharToken(l.ch)
 	case '*':
-		tok = newToken(token.ASTERISK, l.ch)
+		tok = l.makeTwoCharToken(l.ch)
 	case '/':
-		tok = newToken(token.SLASH, l.ch)
+		tok = l.makeTwoCharToken(l.ch)
 	case '%':
 		tok = newToken(token.PERCENT, l.ch)
 	case '<':
@@ -251,6 +251,38 @@ func (l *Lexer) makeTwoCharToken(currChar rune) token.Token {
 			tok = token.Token{Type: token.OR, Literal: literal}
 		} else {
 			tok = newToken(token.ILLEGAL, currChar)
+		}
+	case '+':
+		if l.peekChar() == '=' {
+			l.readChar()
+			literal := string(currChar) + string(l.ch)
+			tok = token.Token{Type: token.PLUS_ASSIGN, Literal: literal}
+		} else {
+			tok = newToken(token.PLUS, l.ch)
+		}
+	case '-':
+		if l.peekChar() == '=' {
+			l.readChar()
+			literal := string(currChar) + string(l.ch)
+			tok = token.Token{Type: token.MINUS_ASSIGN, Literal: literal}
+		} else {
+			tok = newToken(token.MINUS, l.ch)
+		}
+	case '*':
+		if l.peekChar() == '=' {
+			l.readChar()
+			literal := string(currChar) + string(l.ch)
+			tok = token.Token{Type: token.ASTERISK_ASSIGN, Literal: literal}
+		} else {
+			tok = newToken(token.ASTERISK, l.ch)
+		}
+	case '/':
+		if l.peekChar() == '=' {
+			l.readChar()
+			literal := string(currChar) + string(l.ch)
+			tok = token.Token{Type: token.SLASH_ASSIGN, Literal: literal}
+		} else {
+			tok = newToken(token.SLASH, l.ch)
 		}
 	}
 

@@ -9,7 +9,12 @@ const (
 	FLOAT  = "FLOAT"
 	STRING = "STRING"
 
-	ASSIGN   = "="
+	ASSIGN          = "="
+	PLUS_ASSIGN     = "+="
+	MINUS_ASSIGN    = "-="
+	ASTERISK_ASSIGN = "*="
+	SLASH_ASSIGN    = "/="
+
 	PLUS     = "+"
 	MINUS    = "-"
 	BANG     = "!"

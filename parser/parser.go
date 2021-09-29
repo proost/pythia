@@ -10,7 +10,7 @@ import (
 const (
 	_ int = iota
 	LOWEST
-	ASSIGN // =
+	ASSIGN      // =
 	LOGICAL_OR  // ||
 	LOGICAL_AND // &&
 	EQUALS      // ==
@@ -23,22 +23,26 @@ const (
 )
 
 var precedences = map[token.TokenType]int{
-	token.ASSIGN:  ASSIGN,
-	token.AND:      LOGICAL_AND,
-	token.OR:       LOGICAL_OR,
-	token.EQ:       EQUALS,
-	token.NOT_EQ:   EQUALS,
-	token.LT:       LESSGREATER,
-	token.GT:       LESSGREATER,
-	token.LT_OR_EQ: LESSGREATER,
-	token.GT_OR_EQ: LESSGREATER,
-	token.PLUS:     SUM,
-	token.MINUS:    SUM,
-	token.SLASH:    PRODUCT,
-	token.ASTERISK: PRODUCT,
-	token.PERCENT:  PRODUCT,
-	token.LPAREN:   CALL,
-	token.LBRACKET: INDEX,
+	token.ASSIGN:          ASSIGN,
+	token.PLUS_ASSIGN:     ASSIGN,
+	token.MINUS_ASSIGN:    ASSIGN,
+	token.ASTERISK_ASSIGN: ASSIGN,
+	token.SLASH_ASSIGN:    ASSIGN,
+	token.AND:             LOGICAL_AND,
+	token.OR:              LOGICAL_OR,
+	token.EQ:              EQUALS,
+	token.NOT_EQ:          EQUALS,
+	token.LT:              LESSGREATER,
+	token.GT:              LESSGREATER,
+	token.LT_OR_EQ:        LESSGREATER,
+	token.GT_OR_EQ:        LESSGREATER,
+	token.PLUS:            SUM,
+	token.MINUS:           SUM,
+	token.SLASH:           PRODUCT,
+	token.ASTERISK:        PRODUCT,
+	token.PERCENT:         PRODUCT,
+	token.LPAREN:          CALL,
+	token.LBRACKET:        INDEX,
 }
 
 type (
@@ -94,6 +98,11 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerInfix(token.GT_OR_EQ, p.parseInfixExpression)
 	p.registerInfix(token.LPAREN, p.parseCallExpression)
 	p.registerInfix(token.LBRACKET, p.parseIndexExpression)
+	p.registerInfix(token.ASSIGN, p.parseAssignmentExpression)
+	p.registerInfix(token.PLUS_ASSIGN, p.parseAssignmentExpression)
+	p.registerInfix(token.MINUS_ASSIGN, p.parseAssignmentExpression)
+	p.registerInfix(token.ASTERISK_ASSIGN, p.parseAssignmentExpression)
+	p.registerInfix(token.SLASH_ASSIGN, p.parseAssignmentExpression)
 
 	return p
 }

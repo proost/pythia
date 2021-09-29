@@ -321,6 +321,42 @@ func TestLetStatements(t *testing.T) {
 	}
 }
 
+func TestAssignmentExpressions(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected interface{}
+	}{
+		{"let a = 1; a = 2; a;", 2},
+		{"let a = 1.5; a += 1; a;", 2.5},
+		{`let a = "ab"; a += "cd"; a;`, "abcd"},
+		{"let a = 2; a -= 1.5; a;", 0.5},
+		{"let a = 1.0; a *= 2.0; a;", 2.0},
+		{"let a = 4; a /= 2; a;", 2},
+	}
+
+	for _, tt := range tests {
+		switch expected := tt.expected.(type) {
+		case string:
+			evaluated := testEval(tt.input)
+
+			str, ok := evaluated.(*object.String)
+			if !ok {
+				t.Fatalf("object is not String. got=%T (%+v)", evaluated, evaluated)
+			}
+
+			if str.Value != expected {
+				t.Errorf("Identifier has wrong value. got=%q", str.Value)
+			}
+		case float64:
+			testFloatObject(t, testEval(tt.input), expected)
+		case float32:
+			testFloatObject(t, testEval(tt.input), float64(expected))
+		case int:
+			testIntegerObject(t, testEval(tt.input), int64(expected))
+		}
+	}
+}
+
 func TestFunctionObject(t *testing.T) {
 	input := "func(x) { x + 2; }"
 
