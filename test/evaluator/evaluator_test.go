@@ -287,6 +287,18 @@ func TestErrorHandling(t *testing.T) {
 			"[1, 2, 3][-1]",
 			"array index out of bound: -1",
 		},
+		{
+			`let a = "abc"; a -= "bcd";`,
+			"-= operation is not supported for STRING, STRING",
+		},
+		{
+			"range(1,5,-1)",
+			"start can't be smaller than end, when step is -1",
+		},
+		{
+			"range(-1,-5,1)",
+			"start can't be bigger than end, when step is 1",
+		},
 	}
 
 	for _, tt := range tests {
@@ -452,6 +464,10 @@ func TestBuiltinFunctions(t *testing.T) {
 		{"append([1], 2)", []int{1, 2}},
 		{"append([1], 2, 3)", "wrong number of arguments. got=3, want=2"},
 		{"append(1, 2)", "argument to append must be ARRAY, got INTEGER"},
+		{"range(1,4)", []int{1, 2, 3}},
+		{"range(1,4,2)", []int{1, 3}},
+		{"range(5,1,-1)", []int{5, 4, 3, 2}},
+		{"range(-1,-5,-2)", []int{-1, -3}},
 	}
 
 	for _, tt := range tests {

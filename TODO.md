@@ -5,5 +5,4 @@
 3. multi-line 입력을 지원하지 않는다.
 4. bit operation이 없다.
 5. for-loop 추가하기
-6. range built-in 함수 추가하기
-7. !가 붙은 보이드 함수 만들기
+6. !가 붙은 보이드 함수 만들기

@@ -42,7 +42,7 @@ func evalAssignmentExpression(ae *ast.AssignmentExpression, env *object.Environm
 
 		res := evalInfixExpression("+", curr, evaluated)
 		if isError(res) {
-			return newError("+= operation is not supported for %s, %s", curr.Inspect(), evaluated.Inspect())
+			return newError("+= operation is not supported for %s, %s", curr.Type(), evaluated.Type())
 		}
 
 		env.Set(ae.Name.String(), res)
@@ -54,7 +54,7 @@ func evalAssignmentExpression(ae *ast.AssignmentExpression, env *object.Environm
 
 		res := evalInfixExpression("-", curr, evaluated)
 		if isError(res) {
-			return newError("-= operation is not supported for %s, %s", curr.Inspect(), evaluated.Inspect())
+			return newError("-= operation is not supported for %s, %s", curr.Type(), evaluated.Type())
 		}
 
 		env.Set(ae.Name.String(), res)
@@ -66,7 +66,7 @@ func evalAssignmentExpression(ae *ast.AssignmentExpression, env *object.Environm
 
 		res := evalInfixExpression("*", curr, evaluated)
 		if isError(res) {
-			return newError("* operation is not supported for %s, %s", curr.Inspect(), evaluated.Inspect())
+			return newError("* operation is not supported for %s, %s", curr.Type(), evaluated.Type())
 		}
 
 		env.Set(ae.Name.String(), res)
@@ -78,7 +78,7 @@ func evalAssignmentExpression(ae *ast.AssignmentExpression, env *object.Environm
 
 		res := evalInfixExpression("/", curr, evaluated)
 		if isError(res) {
-			return newError("/ operation is not supported for %s, %s", curr.Inspect(), evaluated.Inspect())
+			return newError("/ operation is not supported for %s, %s", curr.Type(), evaluated.Type())
 		}
 
 		env.Set(ae.Name.String(), res)
