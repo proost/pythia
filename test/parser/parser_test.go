@@ -120,6 +120,45 @@ func TestReturnStatements(t *testing.T) {
 	}
 }
 
+func TestForStatement(t *testing.T) {
+	input := `
+	for i, v in collections {
+		let a = 1;
+	}
+`
+
+	l := lexer.New(input)
+	p := parser.New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("program has not enough statements. got=%d", len(program.Statements))
+	}
+	stmt, ok := program.Statements[0].(*ast.ForStatement)
+	if !ok {
+		t.Fatalf("program.Statements[0] is not ast.ForStatement. got=%T", program.Statements[0])
+	}
+
+	testIdentifier(t, stmt.Index, "i")
+	testIdentifier(t, stmt.Value, "v")
+	testIdentifier(t, stmt.Container, "collections")
+
+	bodyStmt := stmt.Body.Statements[0]
+	if !ok {
+		t.Fatalf("for-loop body stmt is not ast.ExpressionStatement. got=%T", stmt.Body.Statements[0])
+	}
+
+	if !testLetStatement(t, bodyStmt, "a") {
+		return
+	}
+
+	val := bodyStmt.(*ast.LetStatement).Value
+	if !testLiteralExpression(t, val, 1) {
+		return
+	}
+}
+
 func TestIdentifierExpression(t *testing.T) {
 	input := "foobar;"
 

@@ -29,49 +29,11 @@ type Object interface {
 	Equals(o Object) bool
 }
 
-type Number interface {
-	// TODO Add Complex inteface
-	Number()
+type Iterator interface {
+	HasNext() bool
+	Next() (Object, Object, bool)
+	Reset() // Before new iteration start, reset offset information
 }
-
-type Real interface {
-	Number
-	ToFloat64() float64
-}
-
-type Integer struct {
-	Value int64
-}
-
-func (i *Integer) Inspect() string  { return fmt.Sprintf("%d", i.Value) }
-func (i *Integer) Type() ObjectType { return INTEGER_OBJ }
-func (i *Integer) Equals(o Object) bool {
-	obj, ok := o.(*Integer)
-	if !ok {
-		return false
-	}
-
-	return i.Value == obj.Value
-}
-func (i *Integer) Number()            {}
-func (i *Integer) ToFloat64() float64 { return float64(i.Value) }
-
-type Float struct {
-	Value float64
-}
-
-func (f *Float) Inspect() string  { return fmt.Sprintf("%f", f.Value) }
-func (f *Float) Type() ObjectType { return FLOAT_OBJ }
-func (f *Float) Equals(o Object) bool {
-	obj, ok := o.(*Float)
-	if !ok {
-		return false
-	}
-
-	return f.Value == obj.Value
-}
-func (f *Float) Number()            {}
-func (f *Float) ToFloat64() float64 { return f.Value }
 
 type Boolean struct {
 	Value bool
@@ -132,7 +94,8 @@ func (e *Error) Equals(o Object) bool {
 }
 
 type String struct {
-	Value string
+	Value  string
+	offset int // This is for for-loop
 }
 
 func (s *String) Type() ObjectType { return STRING_OBJ }
@@ -145,9 +108,32 @@ func (s *String) Equals(o Object) bool {
 
 	return s.Value == obj.Value
 }
+func (s *String) HasNext() bool {
+	if s.offset >= len(s.Value) {
+		return false
+	} else {
+		return true
+	}
+}
+func (s *String) Next() (Object, Object, bool) {
+	if s.HasNext() {
+		idx := &Integer{Value: int64(s.offset)}
+		val := &String{Value: string(s.Value[s.offset])}
+
+		s.offset++
+
+		return idx, val, true
+	}
+
+	return &Null{}, &Null{}, false
+}
+func (s *String) Reset() {
+	s.offset = 0
+}
 
 type Array struct {
 	Elements []Object
+	offset   int // This is for for-loop
 }
 
 func (arr *Array) Type() ObjectType { return ARRAY_OBJ }
@@ -184,6 +170,28 @@ func (arr *Array) Equals(o Object) bool {
 	}
 
 	return true
+}
+func (arr *Array) HasNext() bool {
+	if arr.offset >= len(arr.Elements) {
+		return false
+	} else {
+		return true
+	}
+}
+func (arr *Array) Next() (Object, Object, bool) {
+	if arr.HasNext() {
+		idx := &Integer{Value: int64(arr.offset)}
+		val := arr.Elements[arr.offset]
+
+		arr.offset++
+
+		return idx, val, true
+	}
+
+	return &Null{}, &Null{}, false
+}
+func (arr *Array) Reset() {
+	arr.offset = 0
 }
 
 type Type struct {

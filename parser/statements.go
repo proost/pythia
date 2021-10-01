@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"pythia/ast"
 	"pythia/token"
 )
@@ -13,6 +14,8 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseReturnStatement()
 	case token.DOT:
 		return p.parseInstructionStatement()
+	case token.FOR:
+		return p.parseForStatement()
 	default:
 		return p.parseExpressionStatement()
 	}
@@ -86,4 +89,45 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 	}
 
 	return block
+}
+
+func (p *Parser) parseForStatement() *ast.ForStatement {
+	stmt := &ast.ForStatement{Token: p.curToken}
+
+	p.nextToken()
+	stmt.Value = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+
+	/*
+		This is:
+		for idx, ident in VARIABLE {
+			...
+		}
+	*/
+	if p.peekTokenIs(token.COMMA) {
+		p.nextToken()
+
+		if !p.peekTokenIs(token.IDENT) {
+			p.errors = append(p.errors, fmt.Sprintf("second argument to for-loop must be ident, got %v", p.peekToken))
+			return nil
+		}
+		p.nextToken()
+
+		stmt.Index = stmt.Value
+		stmt.Value = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+	}
+
+	if !p.expectPeek(token.IN) {
+		return nil
+	}
+	p.nextToken()
+
+	stmt.Container = p.parseExpression(LOWEST)
+	if stmt.Container == nil {
+		return nil
+	}
+
+	p.nextToken()
+	stmt.Body = p.parseBlockStatement()
+
+	return stmt
 }

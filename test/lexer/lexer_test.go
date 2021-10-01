@@ -300,3 +300,42 @@ func TestAssignToken(t *testing.T) {
 		}
 	}
 }
+
+func TestForToken(t *testing.T) {
+	input := `
+	for i, v in collections {
+		let foo = 1;
+	}
+	`
+
+	tests := []struct {
+		expectedType    token.TokenType
+		expectedLiteral string
+	}{
+		{token.FOR, "for"},
+		{token.IDENT, "i"},
+		{token.COMMA, ","},
+		{token.IDENT, "v"},
+		{token.IN, "in"},
+		{token.IDENT, "collections"},
+		{token.LBRACE, "{"},
+		{token.LET, "let"},
+		{token.IDENT, "foo"},
+		{token.ASSIGN, "="},
+		{token.INT, "1"},
+		{token.SEMICOLON, ";"},
+		{token.RBRACE, "}"},
+	}
+
+	l := lexer.New(input)
+
+	for i, tt := range tests {
+		tok := l.NextToken()
+		if tok.Type != tt.expectedType {
+			t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q", i, tt.expectedType, tok.Type)
+		}
+		if tok.Literal != tt.expectedLiteral {
+			t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q", i, tt.expectedLiteral, tok.Literal)
+		}
+	}
+}

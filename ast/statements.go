@@ -102,3 +102,23 @@ type InstructionStatement struct {
 func (is *InstructionStatement) statementNode()       {}
 func (is *InstructionStatement) TokenLiteral() string { return is.Token.Literal }
 func (is *InstructionStatement) String() string       { return is.Instruction }
+
+type ForStatement struct {
+	Token     token.Token
+	Index     *Identifier // variable for setting index
+	Value     *Identifier // variable for each item
+	Container Expression  // variable which will be range over
+	Body      *BlockStatement
+}
+
+func (fs *ForStatement) statementNode()       {}
+func (fs *ForStatement) TokenLiteral() string { return fs.Token.Literal }
+func (fs *ForStatement) String() string {
+	var out bytes.Buffer
+
+	out.WriteString(fs.Token.Literal + " " + fs.Value.String() + " in " + fs.Container.String() + " {")
+	out.WriteString(fs.Body.String())
+	out.WriteString("}")
+
+	return out.String()
+}

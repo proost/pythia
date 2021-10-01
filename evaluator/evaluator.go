@@ -35,6 +35,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 			return val
 		}
 		env.Set(node.Name.Value, val)
+	case *ast.ForStatement:
+		return evalForStatement(node, env)
 	case *ast.AssignmentExpression:
 		return evalAssignmentExpression(node, env)
 	case *ast.IfExpression:

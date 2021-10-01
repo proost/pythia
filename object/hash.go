@@ -46,6 +46,7 @@ type HashPair struct {
 }
 type Hash struct {
 	Pairs map[HashKey]HashPair
+	check map[HashKey]struct{} // This is for for-loop
 }
 
 func (h *Hash) Type() ObjectType { return HASH_OBJ }
@@ -85,6 +86,29 @@ func (h *Hash) Equals(o Object) bool {
 	}
 
 	return true
+}
+func (h *Hash) HasNext() bool {
+	if len(h.check) >= len(h.Pairs) {
+		return false
+	} else {
+		return true
+	}
+}
+func (h *Hash) Next() (Object, Object, bool) {
+	if h.HasNext() {
+		for k, pair := range h.Pairs {
+			if _, isContained := h.check[k]; !isContained {
+				h.check[k] = struct{}{}
+
+				return pair.Key, pair.Value, true
+			}
+		}
+	}
+
+	return &Null{}, &Null{}, false
+}
+func (h *Hash) Reset() {
+	h.check = map[HashKey]struct{}{}
 }
 
 type Hashable interface {
