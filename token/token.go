@@ -14,6 +14,7 @@ const (
 	MINUS_ASSIGN    = "-="
 	ASTERISK_ASSIGN = "*="
 	SLASH_ASSIGN    = "/="
+	PERCENT_ASSIGN  = "%="
 
 	PLUS     = "+"
 	MINUS    = "-"
@@ -30,8 +31,14 @@ const (
 	EQ     = "=="
 	NOT_EQ = "!="
 
-	AND = "&&"
-	OR  = "||"
+	LOGICAL_AND = "&&"
+	LOGICAL_OR  = "||"
+
+	BINARY_AND         = "&"
+	BINARY_OR          = "|"
+	BINARY_XOR         = "^"
+	BINARY_LEFT_SHIFT  = "<<"
+	BINARY_RIGHT_SHIFT = ">>"
 
 	DOT       = "."
 	COMMA     = ","

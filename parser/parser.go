@@ -10,39 +10,49 @@ import (
 const (
 	_ int = iota
 	LOWEST
-	ASSIGN      // =
-	LOGICAL_OR  // ||
-	LOGICAL_AND // &&
-	EQUALS      // ==
-	LESSGREATER // > or <
-	SUM         // +
-	PRODUCT     // *
-	PREFIX      // -X or !X
-	CALL        // myFunction(X)
-	INDEX       // array[index]
+	ASSIGN        // =
+	LOGICAL_OR    // ||
+	LOGICAL_AND   // &&
+	BITWISE_OR    // |
+	BITWISE_XOR   // ^
+	BITWISE_AND   // &
+	EQUALS        // ==
+	LESSGREATER   // > or <
+	BITWISE_SHIFT // >> or <<
+	SUM           // +
+	PRODUCT       // *
+	PREFIX        // -X or !X
+	CALL          // myFunction(X)
+	INDEX         // array[index]
 )
 
 var precedences = map[token.TokenType]int{
-	token.ASSIGN:          ASSIGN,
-	token.PLUS_ASSIGN:     ASSIGN,
-	token.MINUS_ASSIGN:    ASSIGN,
-	token.ASTERISK_ASSIGN: ASSIGN,
-	token.SLASH_ASSIGN:    ASSIGN,
-	token.AND:             LOGICAL_AND,
-	token.OR:              LOGICAL_OR,
-	token.EQ:              EQUALS,
-	token.NOT_EQ:          EQUALS,
-	token.LT:              LESSGREATER,
-	token.GT:              LESSGREATER,
-	token.LT_OR_EQ:        LESSGREATER,
-	token.GT_OR_EQ:        LESSGREATER,
-	token.PLUS:            SUM,
-	token.MINUS:           SUM,
-	token.SLASH:           PRODUCT,
-	token.ASTERISK:        PRODUCT,
-	token.PERCENT:         PRODUCT,
-	token.LPAREN:          CALL,
-	token.LBRACKET:        INDEX,
+	token.ASSIGN:             ASSIGN,
+	token.PLUS_ASSIGN:        ASSIGN,
+	token.MINUS_ASSIGN:       ASSIGN,
+	token.ASTERISK_ASSIGN:    ASSIGN,
+	token.SLASH_ASSIGN:       ASSIGN,
+	token.PERCENT_ASSIGN:     ASSIGN,
+	token.LOGICAL_AND:        LOGICAL_AND,
+	token.LOGICAL_OR:         LOGICAL_OR,
+	token.BINARY_OR:          BITWISE_OR,
+	token.BINARY_XOR:         BITWISE_XOR,
+	token.BINARY_AND:         BITWISE_AND,
+	token.BINARY_LEFT_SHIFT:  BITWISE_SHIFT,
+	token.BINARY_RIGHT_SHIFT: BITWISE_SHIFT,
+	token.EQ:                 EQUALS,
+	token.NOT_EQ:             EQUALS,
+	token.LT:                 LESSGREATER,
+	token.GT:                 LESSGREATER,
+	token.LT_OR_EQ:           LESSGREATER,
+	token.GT_OR_EQ:           LESSGREATER,
+	token.PLUS:               SUM,
+	token.MINUS:              SUM,
+	token.SLASH:              PRODUCT,
+	token.ASTERISK:           PRODUCT,
+	token.PERCENT:            PRODUCT,
+	token.LPAREN:             CALL,
+	token.LBRACKET:           INDEX,
 }
 
 type (
@@ -90,12 +100,17 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerInfix(token.PERCENT, p.parseInfixExpression)
 	p.registerInfix(token.EQ, p.parseInfixExpression)
 	p.registerInfix(token.NOT_EQ, p.parseInfixExpression)
-	p.registerInfix(token.AND, p.parseInfixExpression)
-	p.registerInfix(token.OR, p.parseInfixExpression)
+	p.registerInfix(token.LOGICAL_AND, p.parseInfixExpression)
+	p.registerInfix(token.LOGICAL_OR, p.parseInfixExpression)
 	p.registerInfix(token.LT, p.parseInfixExpression)
 	p.registerInfix(token.GT, p.parseInfixExpression)
 	p.registerInfix(token.LT_OR_EQ, p.parseInfixExpression)
 	p.registerInfix(token.GT_OR_EQ, p.parseInfixExpression)
+	p.registerInfix(token.BINARY_XOR, p.parseInfixExpression)
+	p.registerInfix(token.BINARY_AND, p.parseInfixExpression)
+	p.registerInfix(token.BINARY_OR, p.parseInfixExpression)
+	p.registerInfix(token.BINARY_RIGHT_SHIFT, p.parseInfixExpression)
+	p.registerInfix(token.BINARY_LEFT_SHIFT, p.parseInfixExpression)
 	p.registerInfix(token.LPAREN, p.parseCallExpression)
 	p.registerInfix(token.LBRACKET, p.parseIndexExpression)
 	p.registerInfix(token.ASSIGN, p.parseAssignmentExpression)
@@ -103,6 +118,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerInfix(token.MINUS_ASSIGN, p.parseAssignmentExpression)
 	p.registerInfix(token.ASTERISK_ASSIGN, p.parseAssignmentExpression)
 	p.registerInfix(token.SLASH_ASSIGN, p.parseAssignmentExpression)
+	p.registerInfix(token.PERCENT_ASSIGN, p.parseAssignmentExpression)
 
 	return p
 }

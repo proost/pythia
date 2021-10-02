@@ -82,6 +82,18 @@ func evalAssignmentExpression(ae *ast.AssignmentExpression, env *object.Environm
 		}
 
 		env.Set(ae.Name.String(), res)
+	case "%=":
+		curr, ok := env.Get(ae.Name.String())
+		if !ok {
+			return newError("%s is not defined identifier", ae.Name.String())
+		}
+
+		res := evalInfixExpression("%", curr, evaluated)
+		if isError(res) {
+			return newError("% operation is not supported for %s, %s", curr.Type(), evaluated.Type())
+		}
+
+		env.Set(ae.Name.String(), res)
 	default:
 		return newError("%s is unknown assignment operator", ae.Operator)
 	}
@@ -220,6 +232,16 @@ func evalIntegerInfixExpression(operator string, left, right object.Object) obje
 		return &object.Integer{Value: leftVal / rightVal}
 	case "%":
 		return &object.Integer{Value: leftVal % rightVal}
+	case "|":
+		return &object.Integer{Value: leftVal | rightVal}
+	case "&":
+		return &object.Integer{Value: leftVal & rightVal}
+	case "^":
+		return &object.Integer{Value: leftVal ^ rightVal}
+	case ">>":
+		return &object.Integer{Value: leftVal >> rightVal}
+	case "<<":
+		return &object.Integer{Value: leftVal << rightVal}
 	case "<":
 		return nativeBoolToBooleanObject(leftVal < rightVal)
 	case ">":

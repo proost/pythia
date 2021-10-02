@@ -49,8 +49,11 @@ func TestAssignExpressions(t *testing.T) {
 		expectedValue      interface{}
 	}{
 		{"x = 5;", "x", 5},
-		{"y = true;", "y", true},
-		{"foobar = y;", "foobar", "y"},
+		{`y += 0;`, "y", 0},
+		{"foobar -= 1;", "foobar", 1},
+		{"a *= 1", "a", 1},
+		{"b /= 2", "b", 2},
+		{"c %= 3", "c", 3},
 	}
 
 	for _, tt := range tests {
@@ -303,6 +306,11 @@ func TestParsingInfixExpression(t *testing.T) {
 		{"5 != 5;", 5, "!=", 5},
 		{"5 && 5;", 5, "&&", 5},
 		{"5 || 5;", 5, "||", 5},
+		{"5 | 5", 5, "|", 5},
+		{"5 & 5", 5, "&", 5},
+		{"5 ^ 5", 5, "^", 5},
+		{"5 >> 2", 5, ">>", 2},
+		{"5 << 2", 5, "<<", 2},
 		{"true == true", true, "==", true},
 		{"true != false", true, "!=", false},
 		{"false == false", false, "==", false},

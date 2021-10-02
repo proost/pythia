@@ -56,7 +56,7 @@ func (l *Lexer) NextToken() token.Token {
 	case '/':
 		tok = l.makeTwoCharToken(l.ch)
 	case '%':
-		tok = newToken(token.PERCENT, l.ch)
+		tok = l.makeTwoCharToken(l.ch)
 	case '<':
 		tok = l.makeTwoCharToken(l.ch)
 	case '>':
@@ -65,6 +65,8 @@ func (l *Lexer) NextToken() token.Token {
 		tok = l.makeTwoCharToken(l.ch)
 	case '|':
 		tok = l.makeTwoCharToken(l.ch)
+	case '^':
+		tok = newToken(token.BINARY_XOR, l.ch)
 	case ',':
 		tok = newToken(token.COMMA, l.ch)
 	case ';':
@@ -225,6 +227,10 @@ func (l *Lexer) makeTwoCharToken(currChar rune) token.Token {
 			l.readChar()
 			literal := string(currChar) + string(l.ch)
 			tok = token.Token{Type: token.LT_OR_EQ, Literal: literal}
+		} else if l.peekChar() == '<' {
+			l.readChar()
+			literal := string(currChar) + string(l.ch)
+			tok = token.Token{Type: token.BINARY_LEFT_SHIFT, Literal: literal}
 		} else {
 			tok = newToken(token.LT, currChar)
 		}
@@ -233,6 +239,10 @@ func (l *Lexer) makeTwoCharToken(currChar rune) token.Token {
 			l.readChar()
 			literal := string(currChar) + string(l.ch)
 			tok = token.Token{Type: token.GT_OR_EQ, Literal: literal}
+		} else if l.peekChar() == '>' {
+			l.readChar()
+			literal := string(currChar) + string(l.ch)
+			tok = token.Token{Type: token.BINARY_RIGHT_SHIFT, Literal: literal}
 		} else {
 			tok = newToken(token.GT, currChar)
 		}
@@ -240,17 +250,17 @@ func (l *Lexer) makeTwoCharToken(currChar rune) token.Token {
 		if l.peekChar() == '&' {
 			l.readChar()
 			literal := string(currChar) + string(l.ch)
-			tok = token.Token{Type: token.AND, Literal: literal}
+			tok = token.Token{Type: token.LOGICAL_AND, Literal: literal}
 		} else {
-			tok = newToken(token.ILLEGAL, currChar)
+			tok = newToken(token.BINARY_AND, currChar)
 		}
 	case '|':
 		if l.peekChar() == '|' {
 			l.readChar()
 			literal := string(currChar) + string(l.ch)
-			tok = token.Token{Type: token.OR, Literal: literal}
+			tok = token.Token{Type: token.LOGICAL_OR, Literal: literal}
 		} else {
-			tok = newToken(token.ILLEGAL, currChar)
+			tok = newToken(token.BINARY_OR, currChar)
 		}
 	case '+':
 		if l.peekChar() == '=' {
@@ -283,6 +293,14 @@ func (l *Lexer) makeTwoCharToken(currChar rune) token.Token {
 			tok = token.Token{Type: token.SLASH_ASSIGN, Literal: literal}
 		} else {
 			tok = newToken(token.SLASH, l.ch)
+		}
+	case '%':
+		if l.peekChar() == '=' {
+			l.readChar()
+			literal := string(currChar) + string(l.ch)
+			tok = token.Token{Type: token.PERCENT_ASSIGN, Literal: literal}
+		} else {
+			tok = newToken(token.PERCENT, l.ch)
 		}
 	}
 

@@ -148,11 +148,11 @@ func TestOperatorToken(t *testing.T) {
 		{token.INT, "9"},
 		{token.SEMICOLON, ";"},
 		{token.INT, "1"},
-		{token.AND, "&&"},
+		{token.LOGICAL_AND, "&&"},
 		{token.INT, "2"},
 		{token.SEMICOLON, ";"},
 		{token.INT, "1"},
-		{token.OR, "||"},
+		{token.LOGICAL_OR, "||"},
 		{token.INT, "2"},
 		{token.SEMICOLON, ";"},
 	}
@@ -265,6 +265,7 @@ func TestAssignToken(t *testing.T) {
 	a += 3
 	a *= 4
 	a /= 5
+	a %= 6
 	`
 
 	tests := []struct {
@@ -286,6 +287,9 @@ func TestAssignToken(t *testing.T) {
 		{token.IDENT, "a"},
 		{token.SLASH_ASSIGN, "/="},
 		{token.INT, "5"},
+		{token.IDENT, "a"},
+		{token.PERCENT_ASSIGN, "%="},
+		{token.INT, "6"},
 	}
 
 	l := lexer.New(input)
@@ -325,6 +329,49 @@ func TestForToken(t *testing.T) {
 		{token.INT, "1"},
 		{token.SEMICOLON, ";"},
 		{token.RBRACE, "}"},
+	}
+
+	l := lexer.New(input)
+
+	for i, tt := range tests {
+		tok := l.NextToken()
+		if tok.Type != tt.expectedType {
+			t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q", i, tt.expectedType, tok.Type)
+		}
+		if tok.Literal != tt.expectedLiteral {
+			t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q", i, tt.expectedLiteral, tok.Literal)
+		}
+	}
+}
+
+func TestBinaryOperationToken(t *testing.T) {
+	input := `
+	1 & 2
+	3 | 4
+	5 ^ 6
+	7 >> 8
+	9 << 10
+	`
+
+	tests := []struct {
+		expectedType    token.TokenType
+		expectedLiteral string
+	}{
+		{token.INT, "1"},
+		{token.BINARY_AND, "&"},
+		{token.INT, "2"},
+		{token.INT, "3"},
+		{token.BINARY_OR, "|"},
+		{token.INT, "4"},
+		{token.INT, "5"},
+		{token.BINARY_XOR, "^"},
+		{token.INT, "6"},
+		{token.INT, "7"},
+		{token.BINARY_RIGHT_SHIFT, ">>"},
+		{token.INT, "8"},
+		{token.INT, "9"},
+		{token.BINARY_LEFT_SHIFT, "<<"},
+		{token.INT, "10"},
 	}
 
 	l := lexer.New(input)
