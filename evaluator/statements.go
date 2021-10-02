@@ -23,6 +23,38 @@ func evalProgram(program *ast.Program, env *object.Environment) object.Object {
 	return result
 }
 
+func evalIfStatement(is *ast.IfStatement, env *object.Environment) object.Object {
+	condition := Eval(is.Condition, env)
+	if isError(condition) {
+		return condition
+	}
+
+	if isTruthy(condition) {
+		Eval(is.Consequence, extendIfElseEnv(env))
+	} else if is.Alternative != nil {
+		Eval(is.Alternative, extendIfElseEnv(env))
+	}
+
+	return nil
+}
+
+func isTruthy(obj object.Object) bool {
+	switch obj {
+	case NULL:
+		return false
+	case TRUE:
+		return true
+	case FALSE:
+		return false
+	default:
+		return true
+	}
+}
+
+func extendIfElseEnv(env *object.Environment) *object.Environment {
+	return object.NewEnclosedEnvironment(env)
+}
+
 func evalBlockStatement(block *ast.BlockStatement, env *object.Environment) object.Object {
 	var result object.Object
 
@@ -36,7 +68,7 @@ func evalBlockStatement(block *ast.BlockStatement, env *object.Environment) obje
 		}
 	}
 
-	return result
+	return nil
 }
 
 func evalInstructionStatement(instruction *ast.InstructionStatement) object.Object {

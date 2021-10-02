@@ -19,6 +19,8 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return evalProgram(node, env)
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression, env)
+	case *ast.IfStatement:
+		return evalIfStatement(node, env)
 	case *ast.BlockStatement:
 		return evalBlockStatement(node, env)
 	case *ast.ReturnStatement:
@@ -39,8 +41,6 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return evalForStatement(node, env)
 	case *ast.AssignmentExpression:
 		return evalAssignmentExpression(node, env)
-	case *ast.IfExpression:
-		return evalIfExpression(node, env)
 	case *ast.CallExpression:
 		function := Eval(node.Function, env)
 		if isError(function) {

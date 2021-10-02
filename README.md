@@ -1,9 +1,8 @@
-# Interpreter for Pythia language
+# Pythia language
 
 ## Reference language
 * monkey
 * python
+* javascript
 * golang
 * java
-* rust
-* javascript
