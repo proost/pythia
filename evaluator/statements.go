@@ -73,10 +73,10 @@ func evalForStatement(forStmt *ast.ForStatement, env *object.Environment) object
 	for ok {
 
 		if forStmt.Index != nil {
-			extendedEnv.Set(forStmt.Index.Value, idx)
+			extendedEnv.SetInner(forStmt.Index.Value, idx)
 		}
 
-		extendedEnv.Set(forStmt.Value.Value, val)
+		extendedEnv.SetInner(forStmt.Value.Value, val)
 
 		body := Eval(forStmt.Body, extendedEnv)
 		if body != nil && body.Type() == object.RETURN_VALUE_OBJ {

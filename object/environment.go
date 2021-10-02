@@ -24,7 +24,21 @@ func (e *Environment) Get(name string) (Object, bool) {
 	return obj, ok
 }
 
+func (e *Environment) SetInner(name string, val Object) Object {
+	e.store[name] = val
+	return val
+}
+
 func (e *Environment) Set(name string, val Object) Object {
+	if e.outer != nil {
+		_, ok := e.outer.Get(name)
+		if ok {
+			e.outer.SetInner(name, val)
+
+			return val
+		}
+	}
+
 	e.store[name] = val
 	return val
 }

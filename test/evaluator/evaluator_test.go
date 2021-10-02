@@ -344,6 +344,8 @@ func TestAssignmentExpressions(t *testing.T) {
 		{"let a = 2; a -= 1.5; a;", 0.5},
 		{"let a = 1.0; a *= 2.0; a;", 2.0},
 		{"let a = 4; a /= 2; a;", 2},
+		{"let a = 1; if(1<2) { a = 2 }; a;", 2},
+		{"let a = 1; let t = func() { a = 2 }; t(); a;", 2},
 	}
 
 	for _, tt := range tests {
@@ -702,6 +704,35 @@ func TestNullLiteral(t *testing.T) {
 	for _, tt := range tests {
 		evaluated := testEval(tt.input)
 		testNullObject(t, evaluated)
+	}
+}
+
+func TestForLoopStatement(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected interface{}
+	}{
+		{"let result = 0; for i in [1,2,3] { result += 1 }; result;", 3},
+		{`let result = 0; for k,v in {1: "a", 2: "b", 3: "c" } { result += k } ; result;`, 6},
+		{`let result = ""; for c in "abc" { result += c }; result;`, "abc"},
+	}
+
+	for _, tt := range tests {
+		switch expected := tt.expected.(type) {
+		case string:
+			evaluated := testEval(tt.input)
+
+			str, ok := evaluated.(*object.String)
+			if !ok {
+				t.Fatalf("object is not String. got=%T (%+v)", evaluated, evaluated)
+			}
+
+			if str.Value != expected {
+				t.Errorf("Identifier has wrong value. got=%q", str.Value)
+			}
+		case int:
+			testIntegerObject(t, testEval(tt.input), int64(expected))
+		}
 	}
 }
 
