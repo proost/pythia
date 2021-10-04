@@ -123,6 +123,37 @@ func TestReturnStatements(t *testing.T) {
 	}
 }
 
+func TestVoidReturnStatements(t *testing.T) {
+
+	var expected ast.Expression
+	input := "return;"
+
+	l := lexer.New(input)
+	p := parser.New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("program.Statements does not contain 1 statements. got=%d",
+			len(program.Statements))
+	}
+
+	stmt := program.Statements[0]
+	returnStmt, ok := stmt.(*ast.ReturnStatement)
+	if !ok {
+		t.Fatalf("stmt not *ast.returnStatement. got=%T", stmt)
+	}
+	if returnStmt.TokenLiteral() != "return" {
+		t.Fatalf("returnStmt.TokenLiteral not 'return', got %q",
+			returnStmt.TokenLiteral())
+	}
+
+	if returnStmt.ReturnValue != expected {
+		t.Errorf("ident.Value not %s. got=%s", input, expected)
+		return
+	}
+}
+
 func TestForStatement(t *testing.T) {
 	input := `
 	for i, v in collections {

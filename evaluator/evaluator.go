@@ -28,6 +28,10 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		if isError(val) {
 			return val
 		}
+		if node.ReturnValue == nil && val == nil {
+			return &object.ReturnValue{Value: nil} // void return
+		}
+
 		return &object.ReturnValue{Value: val}
 	case *ast.InstructionStatement:
 		return evalInstructionStatement(node)

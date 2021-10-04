@@ -187,22 +187,13 @@ func TestIfElseExpression(t *testing.T) {
 func TestReturnStatements(t *testing.T) {
 	tests := []struct {
 		input    string
-		expected int64
+		expected interface{}
 	}{
 		{"return 10;", 10},
 		{"return 10; 9;", 10},
 		{"return 2 * 5; 9;", 10},
 		{"9; return 2 * 5; 9;", 10},
-		{
-			`if (10 > 1) {
-					if (10 > 1) {
-						return 10;
-					}
-					
-					return 1;
-				}`,
-			10,
-		},
+		{"return", nil},
 		{
 			`let f = func(x) {
 				  	return x;
@@ -224,7 +215,15 @@ func TestReturnStatements(t *testing.T) {
 
 	for _, tt := range tests {
 		evaluated := testEval(tt.input)
-		testIntegerObject(t, evaluated, tt.expected)
+
+		switch expected := tt.expected.(type) {
+		case int:
+			testIntegerObject(t, evaluated, int64(expected))
+		case nil:
+			if evaluated != nil {
+				t.Errorf("object has wrong type. got=%T, want=%T", evaluated, expected)
+			}
+		}
 	}
 }
 
@@ -251,21 +250,6 @@ func TestErrorHandling(t *testing.T) {
 		},
 		{
 			"5; true + false; 5",
-			"unknown operator: BOOLEAN + BOOLEAN",
-		},
-		{
-			"if (10 > 1) { true + false; }",
-			"unknown operator: BOOLEAN + BOOLEAN",
-		},
-		{
-			`
-				if (10 > 1) {
-					if (10 > 1) {
-						return true + false;
-					}
-
-					return 1;
-				}`,
 			"unknown operator: BOOLEAN + BOOLEAN",
 		},
 		{
@@ -406,12 +390,12 @@ func TestFunctionApplication(t *testing.T) {
 		input    string
 		expected int64
 	}{
-		{"let identity = func(x) { x; }; identity(5);", 5},
 		{"let identity = func(x) { return x; }; identity(5);", 5},
-		{"let double = func(x) { x * 2; } double(5);", 10},
-		{"let add = func(x, y) { x + y; }; add(5, 5);", 10},
-		{"let add = func(x, y) { x + y; }; add(5 + 5, add(5, 5));", 20},
-		{"func(x) { x; }(5)", 5},
+		{"let identity = func(x) { return x; }; identity(5);", 5},
+		{"let double = func(x) { return x * 2; } double(5);", 10},
+		{"let add = func(x, y) { return x + y; }; add(5, 5);", 10},
+		{"let add = func(x, y) { return x + y; }; add(5 + 5, add(5, 5));", 20},
+		{"func(x) { return x; }(5)", 5},
 	}
 
 	for _, tt := range tests {

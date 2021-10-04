@@ -53,6 +53,9 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 	p.nextToken()
 
 	stmt.ReturnValue = p.parseExpression(LOWEST)
+	if stmt.ReturnValue == nil { // void return일 때,
+		p.errors = p.errors[:len(p.errors)-1] // noPrefixParserError를 제거
+	}
 
 	if p.peekTokenIs(token.SEMICOLON) {
 		p.nextToken()
