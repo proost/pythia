@@ -93,6 +93,10 @@ var builtins = map[string]*object.Builtin{
 				return newError("wrong number of arguments. got=%d, want=1", len(args))
 			}
 
+			if args[0] == nil {
+				return &object.Type{InstanceType: NULL.Type()}
+			}
+
 			return &object.Type{InstanceType: args[0].Type()}
 		},
 	},

@@ -508,6 +508,7 @@ func TestBuiltinTypeFunction(t *testing.T) {
 		{`type("s")`, "Type: STRING"},
 		{"type(type)", "Type: BUILTIN"},
 		{"type({})", "Type: HASH"},
+		{"let a = func(){}; type(a())", "Type: NULL"},
 	}
 
 	for _, tt := range tests {
