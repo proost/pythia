@@ -82,8 +82,8 @@ func (p *Parser) parseGroupedExpression() ast.Expression {
 	return exp
 }
 
-func (p *Parser) parseCallExpression(function ast.Expression) ast.Expression {
-	exp := &ast.CallExpression{Token: p.curToken, Function: function}
+func (p *Parser) parseCallExpression(functionName ast.Expression) ast.Expression {
+	exp := &ast.CallExpression{Token: p.curToken, Function: functionName}
 	exp.Arguments = p.parseExpressionList(token.RPAREN)
 	return exp
 }

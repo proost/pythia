@@ -195,7 +195,7 @@ func TestReturnStatements(t *testing.T) {
 		{"9; return 2 * 5; 9;", 10},
 		{"return", nil},
 		{
-			`let f = func(x) {
+			`func f(x) {
 				  	return x;
 				  	x + 10;
 					};
@@ -203,7 +203,7 @@ func TestReturnStatements(t *testing.T) {
 			10,
 		},
 		{
-			` let f = func(x) {
+			` func f(x) {
 					   let result = x + 10;
 					   return result;
 					   return 10;
@@ -261,8 +261,8 @@ func TestErrorHandling(t *testing.T) {
 			"unknown operator: STRING - STRING",
 		},
 		{
-			`{"name": "Monkey"}[func(x) { x }];`,
-			"unusable as hash key: FUNCTION",
+			`{"name": "Monkey"}[{}]`,
+			"unusable as hash key: HASH",
 		},
 		{
 			".name",
@@ -335,7 +335,7 @@ func TestAssignmentExpressions(t *testing.T) {
 		{"let a = 4; a /= 2; a;", 2},
 		{"let a = 5; a %= 4; a;", 1},
 		{"let a = 1; if(1<2) { a = 2 }; a;", 2},
-		{"let a = 1; let t = func() { a = 2 }; t(); a;", 2},
+		{"let a = 1; func t() { a = 2 }; t(); a;", 2},
 	}
 
 	for _, tt := range tests {
@@ -362,7 +362,7 @@ func TestAssignmentExpressions(t *testing.T) {
 }
 
 func TestFunctionObject(t *testing.T) {
-	input := "func(x) { x + 2; }"
+	input := "func a(x) { x + 2; }; a;"
 
 	evaluated := testEval(input)
 	fn, ok := evaluated.(*object.Function)
@@ -390,12 +390,11 @@ func TestFunctionApplication(t *testing.T) {
 		input    string
 		expected int64
 	}{
-		{"let identity = func(x) { return x; }; identity(5);", 5},
-		{"let identity = func(x) { return x; }; identity(5);", 5},
-		{"let double = func(x) { return x * 2; } double(5);", 10},
-		{"let add = func(x, y) { return x + y; }; add(5, 5);", 10},
-		{"let add = func(x, y) { return x + y; }; add(5 + 5, add(5, 5));", 20},
-		{"func(x) { return x; }(5)", 5},
+		{"func identify(x) { return x; }; identify(5);", 5},
+		{"func identify(x) { return x; }; identify(5);", 5},
+		{"func double(x) { return x * 2; }; double(5);", 10},
+		{"func add(x, y) { return x + y; }; add(5, 5);", 10},
+		{"func add(x, y) { return x + y; }; add(5 + 5, add(5, 5));", 20},
 	}
 
 	for _, tt := range tests {
@@ -508,7 +507,7 @@ func TestBuiltinTypeFunction(t *testing.T) {
 		{`type("s")`, "Type: STRING"},
 		{"type(type)", "Type: BUILTIN"},
 		{"type({})", "Type: HASH"},
-		{"let a = func(){}; type(a())", "Type: NULL"},
+		{"func a(){}; type(a())", "Type: NULL"},
 	}
 
 	for _, tt := range tests {

@@ -587,8 +587,8 @@ func TestIfStatement(t *testing.T) {
 
 }
 
-func TestFunctionLiteralParsing(t *testing.T) {
-	input := `func(x, y) { x + y; }`
+func TestFunctionStatementParsing(t *testing.T) {
+	input := `func add(x, y) { x + y; }`
 
 	l := lexer.New(input)
 	p := parser.New(l)
@@ -599,18 +599,13 @@ func TestFunctionLiteralParsing(t *testing.T) {
 		t.Fatalf("program.Statements does not contain %d statements. got=%d\n", 1, len(program.Statements))
 	}
 
-	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	function, ok := program.Statements[0].(*ast.FunctionStatement)
 	if !ok {
-		t.Fatalf("program.Statements[0] is not ast.ExpressionStatement. got=%T", program.Statements[0])
-	}
-
-	function, ok := stmt.Expression.(*ast.FunctionLiteral)
-	if !ok {
-		t.Fatalf("stmt.Expression is not ast.FunctionLiteral. got=%T", stmt.Expression)
+		t.Fatalf("program.Statements[0] is not ast.FunctionStatement. got=%T", program.Statements[0])
 	}
 
 	if len(function.Parameters) != 2 {
-		t.Fatalf("function literal parameters wrong. want 2, got=%d\n", len(function.Parameters))
+		t.Fatalf("function statement parameters wrong. want 2, got=%d\n", len(function.Parameters))
 	}
 
 	testLiteralExpression(t, function.Parameters[0], "x")
@@ -633,9 +628,9 @@ func TestFunctionParameterParsing(t *testing.T) {
 		input          string
 		expectedParams []string
 	}{
-		{input: "func() {};", expectedParams: []string{}},
-		{input: "func(x) {};", expectedParams: []string{"x"}},
-		{input: "func(x, y, z) {};", expectedParams: []string{"x", "y", "z"}},
+		{input: "func zero() {}", expectedParams: []string{}},
+		{input: "func one(x) {}", expectedParams: []string{"x"}},
+		{input: "func three(x, y, z) {}", expectedParams: []string{"x", "y", "z"}},
 	}
 
 	for _, tt := range tests {
@@ -644,8 +639,7 @@ func TestFunctionParameterParsing(t *testing.T) {
 		program := p.ParseProgram()
 		checkParserErrors(t, p)
 
-		stmt := program.Statements[0].(*ast.ExpressionStatement)
-		function := stmt.Expression.(*ast.FunctionLiteral)
+		function := program.Statements[0].(*ast.FunctionStatement)
 
 		if len(function.Parameters) != len(tt.expectedParams) {
 			t.Errorf("length parameters wrong. want %d, got=%d\n", len(tt.expectedParams), len(function.Parameters))

@@ -19,6 +19,14 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return evalProgram(node, env)
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression, env)
+	case *ast.FunctionStatement:
+		params := node.Parameters
+		name := node.Name
+		body := node.Body
+
+		funcObj := &object.Function{Parameters: params, Name: name, Body: body}
+		env.Set(name.Value, funcObj)
+		funcObj.Env = env
 	case *ast.IfStatement:
 		return evalIfStatement(node, env)
 	case *ast.BlockStatement:
@@ -46,16 +54,16 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.AssignmentExpression:
 		return evalAssignmentExpression(node, env)
 	case *ast.CallExpression:
-		function := Eval(node.Function, env)
-		if isError(function) {
-			return function
+		funcName := Eval(node.Function, env)
+		if isError(funcName) {
+			return funcName
 		}
 		args := evalExpressions(node.Arguments, env)
 		if len(args) == 1 && isError(args[0]) {
 			return args[0]
 		}
 
-		return applyFunction(function, args)
+		return applyFunction(funcName, args)
 	case *ast.IndexExpression:
 		left := Eval(node.Left, env)
 		if isError(left) {
@@ -85,10 +93,6 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		}
 
 		return evalInfixExpression(node.Operator, left, right)
-	case *ast.FunctionLiteral:
-		params := node.Parameters
-		body := node.Body
-		return &object.Function{Parameters: params, Env: env, Body: body}
 	case *ast.IntegerLiteral:
 		return &object.Integer{Value: node.Value}
 	case *ast.FloatLiteral:

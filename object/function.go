@@ -8,6 +8,7 @@ import (
 
 type Function struct {
 	Parameters []*ast.Identifier
+	Name       *ast.Identifier
 	Body       *ast.BlockStatement
 	Env        *Environment
 }
@@ -21,7 +22,8 @@ func (f *Function) Inspect() string {
 		params = append(params, p.String())
 	}
 
-	out.WriteString("func")
+	out.WriteString("func ")
+	out.WriteString(f.Name.String())
 	out.WriteString("(")
 	out.WriteString(strings.Join(params, ", "))
 	out.WriteString(") {\n")
