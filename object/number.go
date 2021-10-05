@@ -1,6 +1,9 @@
 package object
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
 type Number interface {
 	// TODO Add Complex inteface
@@ -18,6 +21,9 @@ type Integer struct {
 
 func (i *Integer) Inspect() string  { return fmt.Sprintf("%d", i.Value) }
 func (i *Integer) Type() ObjectType { return INTEGER_OBJ }
+func (i *Integer) HashKey() HashKey {
+	return HashKey{Type: i.Type(), Value: uint64(i.Value)}
+}
 func (i *Integer) Equals(o Object) bool {
 	obj, ok := o.(*Integer)
 	if !ok {
@@ -35,6 +41,9 @@ type Float struct {
 
 func (f *Float) Inspect() string  { return fmt.Sprintf("%f", f.Value) }
 func (f *Float) Type() ObjectType { return FLOAT_OBJ }
+func (f *Float) HashKey() HashKey {
+	return HashKey{Type: f.Type(), Value: math.Float64bits(f.Value)}
+}
 func (f *Float) Equals(o Object) bool {
 	obj, ok := o.(*Float)
 	if !ok {

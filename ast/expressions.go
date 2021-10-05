@@ -111,7 +111,7 @@ func (ie *IndexExpression) String() string {
 
 type AssignmentExpression struct {
 	Token    token.Token
-	Name     *Identifier
+	Left     Expression
 	Operator string
 	Value    Expression
 }
@@ -121,7 +121,7 @@ func (ae *AssignmentExpression) TokenLiteral() string { return ae.Token.Literal 
 func (ae *AssignmentExpression) String() string {
 	var out bytes.Buffer
 
-	out.WriteString(ae.Name.String())
+	out.WriteString(ae.Left.String())
 	out.WriteString(" " + ae.Operator + " ")
 	out.WriteString(ae.Value.String())
 

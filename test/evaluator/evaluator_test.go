@@ -261,10 +261,6 @@ func TestErrorHandling(t *testing.T) {
 			"unknown operator: STRING - STRING",
 		},
 		{
-			`{"name": "Monkey"}[{}]`,
-			"unusable as hash key: HASH",
-		},
-		{
 			".name",
 			"unknown instruction: name",
 		},
@@ -336,6 +332,10 @@ func TestAssignmentExpressions(t *testing.T) {
 		{"let a = 5; a %= 4; a;", 1},
 		{"let a = 1; if(1<2) { a = 2 }; a;", 2},
 		{"let a = 1; func t() { a = 2 }; t(); a;", 2},
+		{`let h = {"a": 1}; h["a"] = 2; h["a"];`, 2},
+		{`let h1 = {"a": 1}; let h2 = {1: "a"}; h1[h2[1]];`, 1},
+		{`let arr = [0,1,2]; arr[0] = 3; arr[0];`, 3},
+		{`let h = {"a": 1}; if(1<2) { h["a"] += 2 }; h["a"];`, 3},
 	}
 
 	for _, tt := range tests {

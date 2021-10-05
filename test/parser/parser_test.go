@@ -77,8 +77,8 @@ func TestAssignExpressions(t *testing.T) {
 			t.Fatalf("exp not *ast.AssignmentExpression. got=%T", stmt.Expression)
 		}
 
-		if exp.Name.Value != tt.expectedIdentifier {
-			t.Errorf("letStmt.Name.Value not '%s'. got=%s", tt.expectedIdentifier, exp.Name.Value)
+		if exp.Left.String() != tt.expectedIdentifier {
+			t.Errorf("letStmt.Left not '%s'. got=%s", tt.expectedIdentifier, exp.String())
 		}
 
 		if !testLiteralExpression(t, exp.Value, tt.expectedValue) {

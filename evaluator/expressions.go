@@ -21,84 +21,133 @@ func evalExpressions(exps []ast.Expression, env *object.Environment) []object.Ob
 }
 
 func evalAssignmentExpression(ae *ast.AssignmentExpression, env *object.Environment) object.Object {
-	evaluated := Eval(ae.Value, env)
-	if isError(evaluated) {
-		return evaluated
+	_, ok := ae.Left.(*ast.IndexExpression)
+	if ok {
+		result, ok := evalAssignmentWithIndexExpression(ae, env)
+		if !ok {
+			return result
+		}
+
+		return nil
 	}
 
-	switch ae.Operator {
-	case "=":
-		_, ok := env.Get(ae.Name.String())
-		if !ok {
-			return newError("%s is not defined identifier", ae.Name.String())
-		}
-
-		env.Set(ae.Name.String(), evaluated)
-	case "+=":
-		curr, ok := env.Get(ae.Name.String())
-		if !ok {
-			return newError("%s is not defined identifier", ae.Name.String())
-		}
-
-		res := evalInfixExpression("+", curr, evaluated)
-		if isError(res) {
-			return newError("+= operation is not supported for %s, %s", curr.Type(), evaluated.Type())
-		}
-
-		env.Set(ae.Name.String(), res)
-	case "-=":
-		curr, ok := env.Get(ae.Name.String())
-		if !ok {
-			return newError("%s is not defined identifier", ae.Name.String())
-		}
-
-		res := evalInfixExpression("-", curr, evaluated)
-		if isError(res) {
-			return newError("-= operation is not supported for %s, %s", curr.Type(), evaluated.Type())
-		}
-
-		env.Set(ae.Name.String(), res)
-	case "*=":
-		curr, ok := env.Get(ae.Name.String())
-		if !ok {
-			return newError("%s is not defined identifier", ae.Name.String())
-		}
-
-		res := evalInfixExpression("*", curr, evaluated)
-		if isError(res) {
-			return newError("* operation is not supported for %s, %s", curr.Type(), evaluated.Type())
-		}
-
-		env.Set(ae.Name.String(), res)
-	case "/=":
-		curr, ok := env.Get(ae.Name.String())
-		if !ok {
-			return newError("%s is not defined identifier", ae.Name.String())
-		}
-
-		res := evalInfixExpression("/", curr, evaluated)
-		if isError(res) {
-			return newError("/ operation is not supported for %s, %s", curr.Type(), evaluated.Type())
-		}
-
-		env.Set(ae.Name.String(), res)
-	case "%=":
-		curr, ok := env.Get(ae.Name.String())
-		if !ok {
-			return newError("%s is not defined identifier", ae.Name.String())
-		}
-
-		res := evalInfixExpression("%", curr, evaluated)
-		if isError(res) {
-			return newError("% operation is not supported for %s, %s", curr.Type(), evaluated.Type())
-		}
-
-		env.Set(ae.Name.String(), res)
-	default:
-		return newError("%s is unknown assignment operator", ae.Operator)
+	newObj := Eval(ae.Value, env)
+	if isError(newObj) {
+		return newObj
 	}
+
+	ident, ok := ae.Left.(*ast.Identifier)
+	currObj, ok := env.Get(ident.Value)
+	if !ok {
+		return newError("%s is not defined identifier", ident.Value)
+	}
+
+	res, ok := evalAssignmentOperationHelper(ae.Operator, currObj, newObj)
+	if !ok {
+		return res
+	}
+
+	env.Set(ident.Value, res)
 
 	return nil
+}
+
+func evalAssignmentWithIndexExpression(ae *ast.AssignmentExpression, env *object.Environment) (object.Object, bool) {
+	ie := ae.Left.(*ast.IndexExpression)
+	ident := ie.Left.(*ast.Identifier)
+	index := Eval(ie.Index, env)
+	if isError(index) {
+		return index, false
+	}
+
+	newObj := Eval(ae.Value, env)
+	if isError(newObj) {
+		return newObj, false
+	}
+
+	currObj, ok := env.Get(ident.Value)
+	if !ok {
+		return newError("%s is not defined identifier", ident.Value), false
+	}
+
+	switch {
+	case currObj.Type() == object.ARRAY_OBJ:
+		arr := currObj.(*object.Array)
+		idx := index.(*object.Integer).Value
+		max := int64(len(arr.Elements) - 1)
+		if idx < 0 || idx > max {
+			return newError("array index out of bound: %d", idx), false
+		}
+
+		res, ok := evalAssignmentOperationHelper(ae.Operator, arr.Elements[idx], newObj)
+		if !ok {
+			return res, false
+		}
+
+		arr.Elements[idx] = res
+	case currObj.Type() == object.HASH_OBJ:
+		hash := currObj.(*object.Hash)
+
+		key, ok := index.(object.Hashable)
+		if !ok {
+			return newError("unusable as hash key: %s", index.Type()), false
+		}
+
+		pair, ok := hash.Pairs[key.HashKey()]
+		if !ok {
+			return NULL, false
+		}
+
+		res, ok := evalAssignmentOperationHelper(ae.Operator, pair.Value, newObj)
+		if !ok {
+			return res, false
+		}
+
+		hash.Pairs[key.HashKey()] = object.HashPair{Key: index, Value: res}
+	default:
+		return newError("%s is unknown index type, %T", ident.Value, ident), false
+	}
+
+	return nil, true
+}
+
+func evalAssignmentOperationHelper(op string, curr, rightOperand object.Object) (object.Object, bool) {
+	switch op {
+	case "=":
+		return rightOperand, true
+	case "+=":
+		res := evalInfixExpression("+", curr, rightOperand)
+		if isError(res) {
+			return newError("+= operation is not supported for %s, %s", curr.Type(), rightOperand.Type()), false
+		}
+		return res, true
+	case "-=":
+		res := evalInfixExpression("-", curr, rightOperand)
+		if isError(res) {
+			return newError("-= operation is not supported for %s, %s", curr.Type(), rightOperand.Type()), false
+		}
+		return res, true
+	case "*=":
+		res := evalInfixExpression("*", curr, rightOperand)
+		if isError(res) {
+			return newError("* operation is not supported for %s, %s", curr.Type(), rightOperand.Type()), false
+		}
+		return res, true
+	case "/=":
+		res := evalInfixExpression("/", curr, rightOperand)
+		if isError(res) {
+			return newError("/ operation is not supported for %s, %s", curr.Type(), rightOperand.Type()), false
+		}
+		return res, true
+	case "%=":
+		res := evalInfixExpression("%", curr, rightOperand)
+		if isError(res) {
+			return newError("% operation is not supported for %s, %s", curr.Type(), rightOperand.Type()), false
+		}
+		return res, true
+	default:
+		return newError("%s is unknown assignment operator", op), false
+	}
 }
 
 func applyFunction(fn object.Object, args []object.Object) object.Object {

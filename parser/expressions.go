@@ -126,13 +126,7 @@ func (p *Parser) parseIndexExpression(left ast.Expression) ast.Expression {
 }
 
 func (p *Parser) parseAssignmentExpression(left ast.Expression) ast.Expression {
-	exp := &ast.AssignmentExpression{Token: p.curToken}
-
-	name, ok := left.(*ast.Identifier)
-	if !ok {
-		return nil
-	}
-	exp.Name = name
+	exp := &ast.AssignmentExpression{Token: p.curToken, Left: left}
 
 	exp.Operator = p.curToken.Literal
 

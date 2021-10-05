@@ -4,41 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"hash/fnv"
-	"math"
 	"strings"
 )
-
-type HashKey struct {
-	Type  ObjectType
-	Value uint64
-}
-
-func (b *Boolean) HashKey() HashKey {
-	var value uint64
-
-	if b.Value {
-		value = 1
-	} else {
-		value = 0
-	}
-
-	return HashKey{Type: b.Type(), Value: value}
-}
-
-func (i *Integer) HashKey() HashKey {
-	return HashKey{Type: i.Type(), Value: uint64(i.Value)}
-}
-
-func (s *String) HashKey() HashKey {
-	h := fnv.New64()
-	h.Write([]byte(s.Value))
-
-	return HashKey{Type: s.Type(), Value: h.Sum64()}
-}
-
-func (f *Float) HashKey() HashKey {
-	return HashKey{Type: f.Type(), Value: math.Float64bits(f.Value)}
-}
 
 type HashPair struct {
 	Key   Object
@@ -63,6 +30,20 @@ func (h *Hash) Inspect() string {
 	out.WriteString("}")
 
 	return out.String()
+}
+func (h *Hash) HashKey() HashKey {
+	b := make([]byte, len(h.Pairs)*2)
+	i := 0
+	for _, pair := range h.Pairs {
+		b[i] = byte(pair.Key.HashKey().Value)
+		b[i+1] = byte(pair.Value.HashKey().Value)
+		i += 2
+	}
+
+	hs := fnv.New64()
+	hs.Write(b)
+
+	return HashKey{Type: h.Type(), Value: hs.Sum64()}
 }
 func (h *Hash) Equals(o Object) bool {
 	obj, ok := o.(*Hash)
@@ -109,8 +90,4 @@ func (h *Hash) Next() (Object, Object, bool) {
 }
 func (h *Hash) Reset() {
 	h.check = map[HashKey]struct{}{}
-}
-
-type Hashable interface {
-	HashKey() HashKey
 }
