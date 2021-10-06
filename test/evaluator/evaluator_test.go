@@ -336,6 +336,7 @@ func TestAssignmentExpressions(t *testing.T) {
 		{`let h1 = {"a": 1}; let h2 = {1: "a"}; h1[h2[1]];`, 1},
 		{`let arr = [0,1,2]; arr[0] = 3; arr[0];`, 3},
 		{`let h = {"a": 1}; if(1<2) { h["a"] += 2 }; h["a"];`, 3},
+		{`let h = {"a": 1}; h["b"] = 2; h["b"];`, 2},
 	}
 
 	for _, tt := range tests {

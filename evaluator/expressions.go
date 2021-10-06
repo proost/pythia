@@ -88,14 +88,19 @@ func evalAssignmentWithIndexExpression(ae *ast.AssignmentExpression, env *object
 	case currObj.Type() == object.HASH_OBJ:
 		hash := currObj.(*object.Hash)
 
-		key, ok := index.(object.Hashable)
+		idx, ok := index.(object.Hashable)
 		if !ok {
 			return newError("unusable as hash key: %s", index.Type()), false
 		}
 
-		pair, ok := hash.Pairs[key.HashKey()]
+		pair, ok := hash.Pairs[idx.HashKey()]
 		if !ok {
-			return NULL, false
+			// It means key doesn't exist in hash. so add new key,value to hash if assign operator
+			if ae.Operator == "=" {
+				hash.Pairs[idx.HashKey()] = object.HashPair{Key: index, Value: newObj}
+				return nil, true
+			}
+			return newError("%+v is not exist in hash", index), false
 		}
 
 		res, ok := evalAssignmentOperationHelper(ae.Operator, pair.Value, newObj)
@@ -103,7 +108,7 @@ func evalAssignmentWithIndexExpression(ae *ast.AssignmentExpression, env *object
 			return res, false
 		}
 
-		hash.Pairs[key.HashKey()] = object.HashPair{Key: index, Value: res}
+		hash.Pairs[idx.HashKey()] = object.HashPair{Key: index, Value: res}
 	default:
 		return newError("%s is unknown index type, %T", ident.Value, ident), false
 	}
