@@ -151,7 +151,7 @@ var builtins = map[string]*object.Builtin{
 	},
 	"delete": &object.Builtin{
 		Fn: func(args ...object.Object) object.Object {
-			if len(args) != 2{
+			if len(args) != 2 {
 				return newError("wrong number of arguments. got=%d, want=2", len(args))
 			}
 			if args[0].Type() != object.HASH_OBJ {

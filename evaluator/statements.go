@@ -100,15 +100,20 @@ func evalForStatement(forStmt *ast.ForStatement, env *object.Environment) object
 	// loop iterator object
 	iter.Reset()
 
-	idx, val, ok := iter.Next()
+	required, optional, ok := iter.Next()
 
 	for ok {
 
-		if forStmt.Index != nil {
-			extendedEnv.SetInner(forStmt.Index.Value, idx)
-		}
+		extendedEnv.SetInner(forStmt.Value.Value, required)
 
-		extendedEnv.SetInner(forStmt.Value.Value, val)
+		if forStmt.Index != nil {
+			if container.Type() == object.HASH_OBJ {
+				extendedEnv.SetInner(forStmt.Index.Value, required)
+				extendedEnv.SetInner(forStmt.Value.Value, optional)
+			} else {
+				extendedEnv.SetInner(forStmt.Index.Value, optional)
+			}
+		}
 
 		body := Eval(forStmt.Body, extendedEnv)
 		if body != nil && body.Type() == object.RETURN_VALUE_OBJ {
@@ -118,7 +123,7 @@ func evalForStatement(forStmt *ast.ForStatement, env *object.Environment) object
 			return body
 		}
 
-		idx, val, ok = iter.Next()
+		required, optional, ok = iter.Next()
 	}
 
 	return nil

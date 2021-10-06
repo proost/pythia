@@ -37,8 +37,8 @@ type Object interface {
 
 type Iterator interface {
 	HasNext() bool
-	Next() (Object, Object, bool)
-	Reset() // Before new iteration start, reset offset information
+	Next() (Object, Object, bool) // required value, optional value, hasNext
+	Reset()                       // Before new iteration start, reset offset information
 }
 
 type HashKey struct {
@@ -163,7 +163,7 @@ func (s *String) Next() (Object, Object, bool) {
 
 		s.offset++
 
-		return idx, val, true
+		return val, idx, true
 	}
 
 	return &Null{}, &Null{}, false
@@ -237,7 +237,7 @@ func (arr *Array) Next() (Object, Object, bool) {
 
 		arr.offset++
 
-		return idx, val, true
+		return val, idx, true
 	}
 
 	return &Null{}, &Null{}, false

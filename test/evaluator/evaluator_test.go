@@ -717,9 +717,15 @@ func TestForLoopStatement(t *testing.T) {
 		input    string
 		expected interface{}
 	}{
-		{"let result = 0; for i in [1,2,3] { result += 1 }; result;", 3},
-		{`let result = 0; for k,v in {1: "a", 2: "b", 3: "c" } { result += k } ; result;`, 6},
+		{"let result = 0; for v in [10,20,30] { result += v }; result;", 60},
+		{`let result = 0; for i,v in [10,20,30] { result += v }; result;`, 60},
+		{`let result = 0; for i,v in [10,20,30] { result += i }; result;`, 3},
+		{`let result = 0; for k,v in {1: 10, 2: 20, 3: 30 } { result += v } ; result;`, 60},
+		{`let result = 0; for k,v in {1: 10, 2: 20, 3: 30 } { result += k } ; result;`, 6},
+		{`let result = 0; for k in {1: 10, 2: 20, 3: 30 } { result += k } ; result;`, 6},
 		{`let result = ""; for c in "abc" { result += c }; result;`, "abc"},
+		{`let result = ""; for i,c in "abc" { result += c }; result;`, "abc"},
+		{`let result = 0; for i,c in "abc" { result += i }; result;`, 3},
 	}
 
 	for _, tt := range tests {
