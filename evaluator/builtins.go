@@ -3,6 +3,7 @@ package evaluator
 import (
 	"fmt"
 	"pythia/object"
+	"strings"
 )
 
 var builtins = map[string]*object.Builtin{
@@ -81,8 +82,11 @@ var builtins = map[string]*object.Builtin{
 	"print": &object.Builtin{
 		Fn: func(args ...object.Object) object.Object {
 			for _, arg := range args {
-				fmt.Println(arg.Inspect())
+				msg := strings.ReplaceAll(arg.Inspect(), `\n`, "\n") // escaped version of line breaking to real line breaking
+				fmt.Printf(msg)
 			}
+
+			fmt.Println()
 
 			return nil
 		},
@@ -143,6 +147,26 @@ var builtins = map[string]*object.Builtin{
 
 				return &object.Array{Elements: arr}
 			}
+		},
+	},
+	"delete": &object.Builtin{
+		Fn: func(args ...object.Object) object.Object {
+			if len(args) != 2{
+				return newError("wrong number of arguments. got=%d, want=2", len(args))
+			}
+			if args[0].Type() != object.HASH_OBJ {
+				return newError("first argument of delete must be HASH, got %s", args[0].Type())
+			}
+
+			hash := args[0].(*object.Hash)
+			index, ok := args[1].(object.Hashable)
+			if !ok {
+				return newError("unusable as hash key: %s", args[1].Type())
+			}
+
+			delete(hash.Pairs, index.HashKey())
+
+			return nil
 		},
 	},
 }

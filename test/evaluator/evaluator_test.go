@@ -459,6 +459,8 @@ func TestBuiltinFunctions(t *testing.T) {
 		{"range(1,4,2)", []int{1, 3}},
 		{"range(5,1,-1)", []int{5, 4, 3, 2}},
 		{"range(-1,-5,-2)", []int{-1, -3}},
+		{`let h = {"a": 1}; delete(h, "a"); h`, map[object.HashKey]object.HashPair{}},
+		{`let h = {"a": 1, "b": 2}; delete(h, "a", "b"); h`, "wrong number of arguments. got=3, want=2"},
 	}
 
 	for _, tt := range tests {
@@ -492,6 +494,18 @@ func TestBuiltinFunctions(t *testing.T) {
 
 			for i, expectedElem := range expected {
 				testIntegerObject(t, array.Elements[i], int64(expectedElem))
+			}
+		case map[object.HashKey]object.HashPair:
+			hash, ok := evaluated.(*object.Hash)
+			if !ok {
+				t.Errorf("obj not Hash. got=%T (%+v)", evaluated, evaluated)
+				continue
+			}
+
+			for k, pair := range hash.Pairs {
+				if expected[k].Value != pair.Value {
+					t.Errorf("object has wrong value. got=%+v, want=%+v", pair.Value, expected[k].Value)
+				}
 			}
 		}
 	}
