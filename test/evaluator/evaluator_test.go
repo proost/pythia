@@ -1,6 +1,7 @@
 package evaluator
 
 import (
+	"go/types"
 	"pythia/evaluator"
 	"pythia/lexer"
 	"pythia/object"
@@ -171,15 +172,20 @@ func TestIfElseExpression(t *testing.T) {
 		{"let a = 0; if (1 > 2) { a = 10 }; a;", 0},
 		{"let a = 0; if (1 > 2) { a = 10 } else { a = 20 }; a;", 20},
 		{"let a = 0; if (1 < 2) { a = 10 } else { a = 20 }; a;", 10},
+		{`func min(a,b) { if (a>b) { b } else { a } }; min(1,2)`, nil},
+		{`func max(a,b) { if (a>b) { return a } else { return b }}; max(1,2)`, 2},
 	}
 
 	for _, tt := range tests {
 		evaluated := testEval(tt.input)
-		integer, ok := tt.expected.(int)
-		if ok {
-			testIntegerObject(t, evaluated, int64(integer))
-		} else {
-			testNullObject(t, evaluated)
+
+		switch expected := tt.expected.(type) {
+		case int:
+			testIntegerObject(t, evaluated, int64(expected))
+		case types.Nil:
+			if evaluated != nil {
+				t.Errorf("object is not nil. got=%T (%+v)", evaluated, expected)
+			}
 		}
 	}
 }

@@ -19,8 +19,6 @@ const (
 	BUILTIN_OBJ      = "BUILTIN"
 	ARRAY_OBJ        = "ARRAY"
 	HASH_OBJ         = "HASH"
-	HASH_KEYS_OBJ    = "HASH_KEYS"
-	HASH_VALUES_OBJ  = "HASH_VALUES"
 	TYPE_OBJ         = "TYPE"
 )
 

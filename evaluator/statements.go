@@ -39,10 +39,16 @@ func evalIfStatement(is *ast.IfStatement, env *object.Environment) object.Object
 		return condition
 	}
 
+	var result object.Object
+
 	if isTruthy(condition) {
-		Eval(is.Consequence, extendIfElseEnv(env))
+		result = Eval(is.Consequence, extendIfElseEnv(env))
 	} else if is.Alternative != nil {
-		Eval(is.Alternative, extendIfElseEnv(env))
+		result = Eval(is.Alternative, extendIfElseEnv(env))
+	}
+
+	if result != nil && (result.Type() == object.RETURN_VALUE_OBJ || result.Type() == object.ERROR_OBJ) {
+		return result
 	}
 
 	return nil
