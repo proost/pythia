@@ -2,8 +2,6 @@ package object
 
 import (
 	"bytes"
-	"fmt"
-	"hash/fnv"
 	"pythia/ast"
 	"strings"
 )
@@ -34,12 +32,6 @@ func (f *Function) Inspect() string {
 
 	return out.String()
 }
-func (f *Function) HashKey() HashKey {
-	h := fnv.New64()
-	h.Write([]byte(fmt.Sprintf("%p", f)))
-
-	return HashKey{Type: f.Type(), Value: h.Sum64()}
-}
 func (f *Function) Equals(o Object) bool {
 	obj, ok := o.(*Function)
 	if !ok {
@@ -57,12 +49,6 @@ type Builtin struct {
 
 func (b *Builtin) Type() ObjectType { return BUILTIN_OBJ }
 func (b *Builtin) Inspect() string  { return "builtin function" }
-func (b *Builtin) HashKey() HashKey {
-	h := fnv.New64()
-	h.Write([]byte(fmt.Sprintf("%p", b)))
-
-	return HashKey{Type: b.Type(), Value: h.Sum64()}
-}
 func (b *Builtin) Equals(o Object) bool {
 	obj, ok := o.(*Builtin)
 	if !ok {

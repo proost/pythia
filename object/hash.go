@@ -3,7 +3,6 @@ package object
 import (
 	"bytes"
 	"fmt"
-	"hash/fnv"
 	"strings"
 )
 
@@ -30,20 +29,6 @@ func (h *Hash) Inspect() string {
 	out.WriteString("}")
 
 	return out.String()
-}
-func (h *Hash) HashKey() HashKey {
-	b := make([]byte, len(h.Pairs)*2)
-	i := 0
-	for _, pair := range h.Pairs {
-		b[i] = byte(pair.Key.HashKey().Value)
-		b[i+1] = byte(pair.Value.HashKey().Value)
-		i += 2
-	}
-
-	hs := fnv.New64()
-	hs.Write(b)
-
-	return HashKey{Type: h.Type(), Value: hs.Sum64()}
 }
 func (h *Hash) Equals(o Object) bool {
 	obj, ok := o.(*Hash)

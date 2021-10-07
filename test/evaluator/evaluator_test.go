@@ -273,6 +273,14 @@ func TestErrorHandling(t *testing.T) {
 			"array index out of bound: -1",
 		},
 		{
+			"{[1,2]: 3}",
+			"unusable as hash key: ARRAY",
+		},
+		{
+			`{{"a":1} : 2}`,
+			"unusable as hash key: HASH",
+		},
+		{
 			`let a = "abc"; a -= "bcd";`,
 			"-= operation is not supported for STRING, STRING",
 		},
@@ -283,6 +291,18 @@ func TestErrorHandling(t *testing.T) {
 		{
 			"range(-1,-5,1)",
 			"start can't be bigger than end, when step is 1",
+		},
+		{
+			`let h = {}; h[{1: true}] = 2;`,
+			"unusable as hash key: HASH",
+		},
+		{
+			`let h = {}; h[[1,2]] = 3;`,
+			"unusable as hash key: ARRAY",
+		},
+		{
+			`let h = {}; func add(){}; h[add] = 1;`,
+			"unusable as hash key: FUNCTION",
 		},
 	}
 

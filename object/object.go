@@ -32,7 +32,6 @@ type Object interface {
 	Type() ObjectType
 	Inspect() string
 	Equals(o Object) bool
-	Hashable
 }
 
 type Iterator interface {
@@ -94,9 +93,6 @@ type ReturnValue struct {
 
 func (rv *ReturnValue) Type() ObjectType { return RETURN_VALUE_OBJ }
 func (rv *ReturnValue) Inspect() string  { return rv.Value.Inspect() }
-func (rv *ReturnValue) HashKey() HashKey {
-	return HashKey{Type: rv.Type(), Value: rv.Value.HashKey().Value}
-}
 func (rv *ReturnValue) Equals(o Object) bool {
 	obj, ok := o.(*ReturnValue)
 	if !ok {
@@ -112,12 +108,6 @@ type Error struct {
 
 func (e *Error) Type() ObjectType { return ERROR_OBJ }
 func (e *Error) Inspect() string  { return "ERROR: " + e.Message }
-func (e *Error) HashKey() HashKey {
-	h := fnv.New64()
-	h.Write([]byte(e.Message))
-
-	return HashKey{Type: e.Type(), Value: h.Sum64()}
-}
 func (e *Error) Equals(o Object) bool {
 	obj, ok := o.(*Error)
 	if !ok {
@@ -192,17 +182,6 @@ func (arr *Array) Inspect() string {
 
 	return out.String()
 }
-func (arr *Array) HashKey() HashKey {
-	b := make([]byte, len(arr.Elements))
-	for i, el := range arr.Elements {
-		b[i] = byte(el.HashKey().Value)
-	}
-
-	h := fnv.New64()
-	h.Write(b)
-
-	return HashKey{Type: arr.Type(), Value: h.Sum64()}
-}
 func (arr *Array) Equals(o Object) bool {
 	obj, ok := o.(*Array)
 	if !ok {
@@ -252,12 +231,6 @@ type Type struct {
 
 func (t *Type) Type() ObjectType { return TYPE_OBJ }
 func (t *Type) Inspect() string  { return "Type: " + string(t.InstanceType) }
-func (t *Type) HashKey() HashKey {
-	h := fnv.New64()
-	h.Write([]byte(t.InstanceType))
-
-	return HashKey{Type: t.Type(), Value: h.Sum64()}
-}
 func (t *Type) Equals(o Object) bool {
 	obj, ok := o.(*Type)
 	if !ok {
