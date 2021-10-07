@@ -89,8 +89,7 @@ func (l *Lexer) NextToken() token.Token {
 	case ':':
 		tok = newToken(token.COLON, l.ch)
 	case '.':
-		tok.Type = token.DOT
-		tok.Literal = l.readInstruction()
+		tok = newToken(token.DOT, l.ch)
 	case rune(0):
 		tok.Literal = ""
 		tok.Type = token.EOF
@@ -185,18 +184,6 @@ func (l *Lexer) readString() string {
 			break
 		}
 
-	}
-
-	return string(l.input[position:l.position])
-}
-
-func (l *Lexer) readInstruction() string {
-	position := l.position + 1
-	for {
-		l.readChar()
-		if l.ch == 0 {
-			break
-		}
 	}
 
 	return string(l.input[position:l.position])

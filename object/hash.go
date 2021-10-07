@@ -53,6 +53,7 @@ func (h *Hash) Equals(o Object) bool {
 
 	return true
 }
+
 func (h *Hash) HasNext() bool {
 	if len(h.check) >= len(h.Pairs) {
 		return false
@@ -75,4 +76,46 @@ func (h *Hash) Next() (Object, Object, bool) {
 }
 func (h *Hash) Reset() {
 	h.check = map[HashKey]struct{}{}
+}
+
+func (h *Hash) Apply(method string, env *Environment, args ...Object) (Object, bool) {
+	switch method {
+	case "isEmpty":
+		return &Boolean{Value: h.IsEmpty()}, true
+	case "keys":
+		return h.Keys()
+	case "values":
+		return h.Values()
+	}
+
+	return nil, false
+}
+func (h *Hash) IsEmpty() bool {
+	if len(h.Pairs) == 0 {
+		return true
+	}
+
+	return false
+}
+func (h *Hash) Keys() (Object, bool) {
+	elements := make([]Object, len(h.Pairs))
+
+	i := 0
+	for _, pair := range h.Pairs {
+		elements[i] = pair.Key
+		i++
+	}
+
+	return &Array{Elements: elements}, true
+}
+func (h *Hash) Values() (Object, bool) {
+	elements := make([]Object, len(h.Pairs))
+
+	i := 0
+	for _, pair := range h.Pairs {
+		elements[i] = pair.Value
+		i++
+	}
+
+	return &Array{Elements: elements}, true
 }

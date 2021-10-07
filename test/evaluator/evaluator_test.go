@@ -304,6 +304,18 @@ func TestErrorHandling(t *testing.T) {
 			`let h = {}; func add(){}; h[add] = 1;`,
 			"unusable as hash key: FUNCTION",
 		},
+		{
+			`let foobar = 1; foobar.call()`,
+			"INTEGER is not callable object",
+		},
+		{
+			`{}.foo()`,
+			"foo is unknown method, HASH",
+		},
+		{
+			`[].bar()`,
+			"bar is unknown method, ARRAY",
+		},
 	}
 
 	for _, tt := range tests {
@@ -464,14 +476,6 @@ func TestBuiltinFunctions(t *testing.T) {
 		{`len([1, 2, 3])`, 3},
 		{`len([])`, 0},
 		{`len({"a": 1})`, 1},
-		{"first([1,2,3])", 1},
-		{"first([])", evaluator.NULL},
-		{"first(1)", "argument to first must be ARRAY, got INTEGER"},
-		{"first([1,2],[2,3])", "wrong number of arguments. got=2, want=1"},
-		{"last([1,2,3])", 3},
-		{"last([])", evaluator.NULL},
-		{"last(1)", "argument to last must be ARRAY, got INTEGER"},
-		{"last([1,2],[2,3])", "wrong number of arguments. got=2, want=1"},
 		{"append([], 1)", []int{1}},
 		{"append([1], 2)", []int{1, 2}},
 		{"append([1], 2, 3)", "wrong number of arguments. got=3, want=2"},
@@ -482,6 +486,13 @@ func TestBuiltinFunctions(t *testing.T) {
 		{"range(-1,-5,-2)", []int{-1, -3}},
 		{`let h = {"a": 1}; delete(h, "a"); h`, map[object.HashKey]object.HashPair{}},
 		{`let h = {"a": 1, "b": 2}; delete(h, "a", "b"); h`, "wrong number of arguments. got=3, want=2"},
+		{`[].isEmpty()`, true},
+		{`[1,2].isEmpty()`, false},
+		{`[1,2,3].last()`, 3},
+		{`{}.isEmpty()`, true},
+		{`{1: true}.isEmpty()`, false},
+		{`{true: "a", false: "b"}.keys()`, []bool{true, false}},
+		{`{true: "a", false: "b"}.values()`, []string{"a", "b"}},
 	}
 
 	for _, tt := range tests {
@@ -490,6 +501,8 @@ func TestBuiltinFunctions(t *testing.T) {
 		switch expected := tt.expected.(type) {
 		case int:
 			testIntegerObject(t, evaluated, int64(expected))
+		case bool:
+			testBooleanObject(t, evaluated, expected)
 		case string:
 			errObj, ok := evaluated.(*object.Error)
 			if !ok {
@@ -527,6 +540,76 @@ func TestBuiltinFunctions(t *testing.T) {
 				if expected[k].Value != pair.Value {
 					t.Errorf("object has wrong value. got=%+v, want=%+v", pair.Value, expected[k].Value)
 				}
+			}
+		case []bool:
+			array, ok := evaluated.(*object.Array)
+			if !ok {
+				t.Errorf("obj not Array. got=%T (%+v)", evaluated, evaluated)
+				continue
+			}
+
+			if len(array.Elements) != len(expected) {
+				t.Errorf("wrong num of elements. want=%d, got=%d", len(expected), len(array.Elements))
+				continue
+			}
+
+			// order is not demanded
+			result := make([]bool, len(expected))
+			for i, evaluatedEl := range expected {
+				result[i] = evaluatedEl
+			}
+
+			t1 := true
+			for i := 0; i < len(result); i++ {
+				if result[i] != expected[i] {
+					t1 = false
+				}
+			}
+
+			t2 := true
+			for i := 0; i < len(result); i++ {
+				if result[i] != expected[len(expected)-1-i] {
+					t2 = false
+				}
+			}
+
+			if !(t1 || t2) {
+				t.Errorf("object has wrong value. got=%+v, want=%+v", result, expected)
+			}
+		case []string:
+			array, ok := evaluated.(*object.Array)
+			if !ok {
+				t.Errorf("obj not Array. got=%T (%+v)", evaluated, evaluated)
+				continue
+			}
+
+			if len(array.Elements) != len(expected) {
+				t.Errorf("wrong num of elements. want=%d, got=%d", len(expected), len(array.Elements))
+				continue
+			}
+
+			// order is not demanded
+			result := make([]string, len(expected))
+			for i, evaluatedEl := range expected {
+				result[i] = evaluatedEl
+			}
+
+			t1 := true
+			for i := 0; i < len(result); i++ {
+				if result[i] != expected[i] {
+					t1 = false
+				}
+			}
+
+			t2 := true
+			for i := 0; i < len(result); i++ {
+				if result[i] != expected[len(expected)-1-i] {
+					t2 = false
+				}
+			}
+
+			if !(t1 || t2) {
+				t.Errorf("object has wrong value. got=%+v, want=%+v", result, expected)
 			}
 		}
 	}

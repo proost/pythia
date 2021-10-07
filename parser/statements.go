@@ -156,7 +156,15 @@ func (p *Parser) parseIfStatement() *ast.IfStatement {
 }
 
 func (p *Parser) parseInstructionStatement() *ast.InstructionStatement {
-	return &ast.InstructionStatement{Token: p.curToken, Instruction: p.curToken.Literal}
+	stmt := &ast.InstructionStatement{Token: p.curToken}
+
+	if !p.expectPeek(token.IDENT) {
+		return nil
+	}
+
+	stmt.Instruction = p.curToken.Literal
+
+	return stmt
 }
 
 func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {

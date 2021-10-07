@@ -23,6 +23,16 @@ func evalProgram(program *ast.Program, env *object.Environment) object.Object {
 	return result
 }
 
+func evalLetStatement(ls *ast.LetStatement, env *object.Environment) object.Object {
+	val := Eval(ls.Value, env)
+	if isError(val) {
+		return val
+	}
+	env.Set(ls.Name.Value, val)
+
+	return nil
+}
+
 func evalIfStatement(is *ast.IfStatement, env *object.Environment) object.Object {
 	condition := Eval(is.Condition, env)
 	if isError(condition) {
@@ -69,6 +79,30 @@ func evalBlockStatement(block *ast.BlockStatement, env *object.Environment) obje
 	}
 
 	return nil
+}
+
+func evalFunctionStatement(fn *ast.FunctionStatement, env *object.Environment) object.Object {
+	params := fn.Parameters
+	name := fn.Name
+	body := fn.Body
+
+	funcObj := &object.Function{Parameters: params, Name: name, Body: body}
+	env.Set(name.Value, funcObj)
+	funcObj.Env = env
+
+	return nil
+}
+
+func evalReturnStatement(ret *ast.ReturnStatement, env *object.Environment) object.Object {
+	val := Eval(ret.ReturnValue, env)
+	if isError(val) {
+		return val
+	}
+	if ret.ReturnValue == nil && val == nil {
+		return &object.ReturnValue{Value: nil} // void return
+	}
+
+	return &object.ReturnValue{Value: val}
 }
 
 func evalInstructionStatement(instruction *ast.InstructionStatement) object.Object {

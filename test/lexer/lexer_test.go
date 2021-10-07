@@ -386,3 +386,35 @@ func TestBinaryOperationToken(t *testing.T) {
 		}
 	}
 }
+
+func TestDotToken(t *testing.T) {
+	input := `
+	.quit
+	obj.call()
+	`
+
+	tests := []struct {
+		expectedType    token.TokenType
+		expectedLiteral string
+	}{
+		{token.DOT, "."},
+		{token.IDENT, "quit"},
+		{token.IDENT, "obj"},
+		{token.DOT, "."},
+		{token.IDENT, "call"},
+		{token.LPAREN, "("},
+		{token.RPAREN, ")"},
+	}
+
+	l := lexer.New(input)
+
+	for i, tt := range tests {
+		tok := l.NextToken()
+		if tok.Type != tt.expectedType {
+			t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q", i, tt.expectedType, tok.Type)
+		}
+		if tok.Literal != tt.expectedLiteral {
+			t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q", i, tt.expectedLiteral, tok.Literal)
+		}
+	}
+}

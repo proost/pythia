@@ -49,3 +49,11 @@ func evalHashLiteral(node *ast.HashLiteral, env *object.Environment) object.Obje
 
 	return &object.Hash{Pairs: pairs}
 }
+
+func evalArrayLiteral(al *ast.ArrayLiteral, env *object.Environment) object.Object {
+	elements := evalExpressions(al.Elements, env)
+	if len(elements) == 1 && isError(elements[0]) {
+		return elements[0]
+	}
+	return &object.Array{Elements: elements}
+}

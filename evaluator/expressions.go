@@ -155,6 +155,19 @@ func evalAssignmentOperationHelper(op string, curr, rightOperand object.Object) 
 	}
 }
 
+func evalCallExpression(ce *ast.CallExpression, env *object.Environment) object.Object {
+	funcName := Eval(ce.Function, env)
+	if isError(funcName) {
+		return funcName
+	}
+	args := evalExpressions(ce.Arguments, env)
+	if len(args) == 1 && isError(args[0]) {
+		return args[0]
+	}
+
+	return applyFunction(funcName, args)
+}
+
 func applyFunction(fn object.Object, args []object.Object) object.Object {
 	switch fn := fn.(type) {
 	case *object.Function:
@@ -166,6 +179,32 @@ func applyFunction(fn object.Object, args []object.Object) object.Object {
 	default:
 		return newError("not a function: %s", fn.Type())
 	}
+}
+
+func evalMethodCallExpression(mce *ast.MethodCallExpression, env *object.Environment) object.Object {
+	obj := Eval(mce.Object, env)
+	if isError(obj) {
+		return obj
+	}
+
+	method, ok := mce.Call.(*ast.CallExpression)
+	if !ok {
+		return newError("wrong type method: %s", method.Function.String())
+	}
+
+	args := evalExpressions(method.Arguments, env)
+
+	callable, ok := obj.(object.Callable)
+	if !ok {
+		return newError("%s is not callable object", obj.Type())
+	}
+
+	result, ok := callable.Apply(method.Function.String(), env, args...)
+	if !ok {
+		return newError("%s is unknown method, %s", method.Function.String(), obj.Type())
+	}
+
+	return result
 }
 
 func extendFunctionEnv(fn *object.Function, args []object.Object) *object.Environment {

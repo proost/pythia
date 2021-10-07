@@ -136,3 +136,20 @@ func (p *Parser) parseAssignmentExpression(left ast.Expression) ast.Expression {
 
 	return exp
 }
+
+func (p *Parser) parseMethodCallExpression(left ast.Expression) ast.Expression {
+	exp := &ast.MethodCallExpression{Token: p.curToken, Object: left}
+
+	if !p.expectPeek(token.IDENT) {
+		return nil
+	}
+
+	methodName := p.parseIdentifier()
+
+	if !p.expectPeek(token.LPAREN) {
+		return nil
+	}
+	exp.Call = p.parseCallExpression(methodName)
+
+	return exp
+}

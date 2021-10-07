@@ -22,7 +22,7 @@ const (
 	SUM           // +
 	PRODUCT       // *
 	PREFIX        // -X or !X
-	CALL          // myFunction(X)
+	CALL          // myFunction(X) or obj.call(x)
 	INDEX         // array[index]
 )
 
@@ -52,6 +52,7 @@ var precedences = map[token.TokenType]int{
 	token.ASTERISK:           PRODUCT,
 	token.PERCENT:            PRODUCT,
 	token.LPAREN:             CALL,
+	token.DOT:                CALL,
 	token.LBRACKET:           INDEX,
 }
 
@@ -117,6 +118,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerInfix(token.ASTERISK_ASSIGN, p.parseAssignmentExpression)
 	p.registerInfix(token.SLASH_ASSIGN, p.parseAssignmentExpression)
 	p.registerInfix(token.PERCENT_ASSIGN, p.parseAssignmentExpression)
+	p.registerInfix(token.DOT, p.parseMethodCallExpression)
 
 	return p
 }

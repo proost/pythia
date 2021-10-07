@@ -1,10 +1,8 @@
 package object
 
 import (
-	"bytes"
 	"fmt"
 	"hash/fnv"
-	"strings"
 )
 
 type ObjectType string
@@ -21,12 +19,10 @@ const (
 	BUILTIN_OBJ      = "BUILTIN"
 	ARRAY_OBJ        = "ARRAY"
 	HASH_OBJ         = "HASH"
+	HASH_KEYS_OBJ    = "HASH_KEYS"
+	HASH_VALUES_OBJ  = "HASH_VALUES"
 	TYPE_OBJ         = "TYPE"
 )
-
-type Hashable interface {
-	HashKey() HashKey
-}
 
 type Object interface {
 	Type() ObjectType
@@ -38,6 +34,19 @@ type Iterator interface {
 	HasNext() bool
 	Next() (Object, Object, bool) // required value, optional value, hasNext
 	Reset()                       // Before new iteration start, reset offset information
+}
+
+type Callable interface {
+	Apply(method string, env *Environment, args ...Object) (Object, bool)
+}
+
+type Collections interface {
+	Callable
+	IsEmpty() bool
+}
+
+type Hashable interface {
+	HashKey() HashKey
 }
 
 type HashKey struct {
@@ -160,69 +169,6 @@ func (s *String) Next() (Object, Object, bool) {
 }
 func (s *String) Reset() {
 	s.offset = 0
-}
-
-type Array struct {
-	Elements []Object
-	offset   int // This is for for-loop
-}
-
-func (arr *Array) Type() ObjectType { return ARRAY_OBJ }
-func (arr *Array) Inspect() string {
-	var out bytes.Buffer
-
-	elements := []string{}
-	for _, e := range arr.Elements {
-		elements = append(elements, e.Inspect())
-	}
-
-	out.WriteString("[")
-	out.WriteString(strings.Join(elements, ", "))
-	out.WriteString("]")
-
-	return out.String()
-}
-func (arr *Array) Equals(o Object) bool {
-	obj, ok := o.(*Array)
-	if !ok {
-		return false
-	}
-
-	if len(arr.Elements) != len(obj.Elements) {
-		return false
-	}
-
-	i := 0
-	for i < len(arr.Elements) {
-		if !arr.Elements[i].Equals(obj.Elements[i]) {
-			return false
-		}
-		i++
-	}
-
-	return true
-}
-func (arr *Array) HasNext() bool {
-	if arr.offset >= len(arr.Elements) {
-		return false
-	} else {
-		return true
-	}
-}
-func (arr *Array) Next() (Object, Object, bool) {
-	if arr.HasNext() {
-		idx := &Integer{Value: int64(arr.offset)}
-		val := arr.Elements[arr.offset]
-
-		arr.offset++
-
-		return val, idx, true
-	}
-
-	return &Null{}, &Null{}, false
-}
-func (arr *Array) Reset() {
-	arr.offset = 0
 }
 
 type Type struct {

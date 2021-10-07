@@ -127,3 +127,20 @@ func (ae *AssignmentExpression) String() string {
 
 	return out.String()
 }
+
+type MethodCallExpression struct {
+	Token  token.Token
+	Object Expression
+	Call   Expression
+}
+
+func (mce *MethodCallExpression) expressionNode()      {}
+func (mce *MethodCallExpression) TokenLiteral() string { return mce.Token.Literal }
+func (mce *MethodCallExpression) String() string {
+	var out bytes.Buffer
+
+	out.WriteString(mce.Object.String())
+	out.WriteString(mce.Token.Literal + mce.Call.String())
+
+	return out.String()
+}
