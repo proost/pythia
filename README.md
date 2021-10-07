@@ -1,3 +1,5 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/proost/pythia)](https://goreportcard.com/report/github.com/proost/pythia)
+
 # Pythia language
 
 
@@ -22,7 +24,7 @@ You can install from source like:
 ```markdown
 git clone https://github.com/proost/pythia
 cd pythia
-go install
+go build cmd/main.go
 ```
 
 
