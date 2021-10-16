@@ -499,6 +499,7 @@ func TestBuiltinFunctions(t *testing.T) {
 		{`{1: true}.isEmpty()`, false},
 		{`{true: "a", false: "b"}.keys()`, []bool{true, false}},
 		{`{true: "a", false: "b"}.values()`, []string{"a", "b"}},
+		{`string([1,2,3], 4)`, "wrong number of arguments. got=2, want=1"},
 	}
 
 	for _, tt := range tests {
@@ -643,6 +644,34 @@ func TestBuiltinTypeFunction(t *testing.T) {
 		}
 		if typeObj.Inspect() != tt.expected {
 			t.Errorf("wrong type. expected=%s, got=%s", tt.expected, typeObj.Inspect())
+		}
+	}
+}
+
+func TestBuiltinStringFunction(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"string(1)", "1"},
+		{"string(2.3)", "2.300000"},
+		{"string(true)", "true"},
+		{`string("foo")`, "foo"},
+		{"string(null)", "null"},
+		{"string({1: true, 0: false})", "{1: true, 0: false}"},
+		{"string([1,2,3])", "[1, 2, 3]"},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+
+		result, ok := evaluated.(*object.String)
+		if !ok {
+			t.Errorf("object is not String. got=%T (%+v)", evaluated, evaluated)
+		}
+
+		if result.Value != tt.expected {
+			t.Errorf("object has wrong value. got=%+v, want=%+v", result, tt.expected)
 		}
 	}
 }

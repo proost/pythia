@@ -232,7 +232,12 @@ for example,
 >> range(0, -10, -3) // [0, -3, -6, -9]
 ```
 * `delete`: remove key from hash
-     
+
+* `string`: convert object to string object.
+```markdown
+>> string(true) // true
+>> string([1,2,3]) // [1, 2, 3]
+```
 
 
 ### 2.6 Function

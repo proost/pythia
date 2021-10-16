@@ -7,7 +7,17 @@ import (
 )
 
 var builtins = map[string]*object.Builtin{
-	"len": &object.Builtin{
+	"len":    builtinLen(),
+	"append": builtinAppend(),
+	"print":  builtinPrint(),
+	"type":   builtinType(),
+	"range":  builtinRange(),
+	"delete": builtinDelete(),
+	"string": builtinString(),
+}
+
+func builtinLen() *object.Builtin {
+	return &object.Builtin{
 		Fn: func(args ...object.Object) object.Object {
 			if len(args) != 1 {
 				return newError("wrong number of arguments. got=%d, want=1", len(args))
@@ -24,8 +34,11 @@ var builtins = map[string]*object.Builtin{
 				return newError("argument to len not supported, got %s", args[0].Type())
 			}
 		},
-	},
-	"append": &object.Builtin{
+	}
+}
+
+func builtinAppend() *object.Builtin {
+	return &object.Builtin{
 		Fn: func(args ...object.Object) object.Object {
 			if len(args) != 2 {
 				return newError("wrong number of arguments. got=%d, want=2", len(args))
@@ -43,8 +56,11 @@ var builtins = map[string]*object.Builtin{
 
 			return &object.Array{Elements: newElements}
 		},
-	},
-	"print": &object.Builtin{
+	}
+}
+
+func builtinPrint() *object.Builtin {
+	return &object.Builtin{
 		Fn: func(args ...object.Object) object.Object {
 			for _, arg := range args {
 				msg := strings.ReplaceAll(arg.Inspect(), `\n`, "\n") // escaped version of line breaking to real line breaking
@@ -55,8 +71,11 @@ var builtins = map[string]*object.Builtin{
 
 			return nil
 		},
-	},
-	"type": &object.Builtin{
+	}
+}
+
+func builtinType() *object.Builtin {
+	return &object.Builtin{
 		Fn: func(args ...object.Object) object.Object {
 			if len(args) != 1 {
 				return newError("wrong number of arguments. got=%d, want=1", len(args))
@@ -68,8 +87,11 @@ var builtins = map[string]*object.Builtin{
 
 			return &object.Type{InstanceType: args[0].Type()}
 		},
-	},
-	"range": &object.Builtin{
+	}
+}
+
+func builtinRange() *object.Builtin {
+	return &object.Builtin{
 		Fn: func(args ...object.Object) object.Object {
 			if !(len(args) == 2 || len(args) == 3) {
 				return newError("wrong number of arguments. got=%d, want= 2 or 3", len(args))
@@ -113,8 +135,11 @@ var builtins = map[string]*object.Builtin{
 				return &object.Array{Elements: arr}
 			}
 		},
-	},
-	"delete": &object.Builtin{
+	}
+}
+
+func builtinDelete() *object.Builtin {
+	return &object.Builtin{
 		Fn: func(args ...object.Object) object.Object {
 			if len(args) != 2 {
 				return newError("wrong number of arguments. got=%d, want=2", len(args))
@@ -133,5 +158,17 @@ var builtins = map[string]*object.Builtin{
 
 			return nil
 		},
-	},
+	}
+}
+
+func builtinString() *object.Builtin {
+	return &object.Builtin{
+		Fn: func(args ...object.Object) object.Object {
+			if len(args) != 1 {
+				return newError("wrong number of arguments. got=%d, want=1", len(args))
+			}
+
+			return &object.String{Value: args[0].Inspect()}
+		},
+	}
 }
